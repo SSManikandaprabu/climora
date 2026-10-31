@@ -7,7 +7,7 @@ import {
   CHENNAI_HYDRO_GEOJSON,
   CHENNAI_3D_BUILDINGS_GEOJSON,
 } from '../../data/chennaiGeoData';
-import { LayerController } from './LayerController';
+import { LayerController, MapBaseStyle } from './LayerController';
 import { NeighbourhoodModal } from './NeighbourhoodModal';
 import { soundFx } from '../../utils/audioSynthesizer';
 import {
@@ -20,9 +20,7 @@ import {
   Compass,
   Droplets,
   Building2,
-  Waves,
-  Eye,
-  Sliders,
+  ExternalLink,
 } from 'lucide-react';
 
 interface DigitalTwinMapProps {
@@ -48,7 +46,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
     CHENNAI_NEIGHBOURHOODS[0]
   );
   const [showLayerController, setShowLayerController] = useState(true);
-  const [baseStyle, setBaseStyle] = useState<'satellite' | 'dark' | 'terrain'>('satellite');
+  const [baseStyle, setBaseStyle] = useState<MapBaseStyle>('google-hybrid');
   const [floodDepthFilter, setFloodDepthFilter] = useState<number>(1.4); // Water depth in meters (0.2 to 2.5m)
   const [show3DBuildings, setShow3DBuildings] = useState<boolean>(true);
   const [cursorCoords, setCursorCoords] = useState<{ lat: number; lng: number; elevation: number }>({
@@ -75,47 +73,112 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
     },
   });
 
-  // Base map style definitions with tone-mapped satellite imagery
-  const getStyleUrl = (style: 'satellite' | 'dark' | 'terrain') => {
+  // Google Maps and fallback base style definitions
+  const getStyleUrl = (style: MapBaseStyle) => {
     switch (style) {
-      case 'satellite':
+      case 'google-hybrid':
         return {
           version: 8,
           sources: {
-            'esri-satellite': {
+            'google-hybrid-tiles': {
               type: 'raster',
-              tiles: ['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+              tiles: [
+                'https://mt0.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+                'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+                'https://mt2.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+                'https://mt3.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+              ],
               tileSize: 256,
-              attribution: 'Esri World Imagery High-Res 0.5m LiDAR'
+              attribution: '© Google Maps'
             }
           },
           layers: [
             {
-              id: 'satellite-base',
+              id: 'google-hybrid-layer',
               type: 'raster',
-              source: 'esri-satellite',
+              source: 'google-hybrid-tiles',
               minzoom: 0,
-              maxzoom: 20,
-              paint: {
-                'raster-contrast': 0.15,
-                'raster-brightness-min': 0.05,
-                'raster-saturation': -0.15,
-              }
+              maxzoom: 22,
             }
           ]
         };
-      case 'terrain':
+      case 'google-satellite':
         return {
           version: 8,
           sources: {
-            'opentopo': {
+            'google-sat-tiles': {
               type: 'raster',
-              tiles: ['https://tile.opentopomap.org/{z}/{x}/{y}.png'],
+              tiles: [
+                'https://mt0.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+                'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+                'https://mt2.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+                'https://mt3.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+              ],
               tileSize: 256,
-              attribution: 'OpenTopoMap Topographic Relief'
+              attribution: '© Google Satellite'
             }
           },
-          layers: [{ id: 'terrain-base', type: 'raster', source: 'opentopo', minzoom: 0, maxzoom: 17 }]
+          layers: [
+            {
+              id: 'google-sat-layer',
+              type: 'raster',
+              source: 'google-sat-tiles',
+              minzoom: 0,
+              maxzoom: 22,
+            }
+          ]
+        };
+      case 'google-roadmap':
+        return {
+          version: 8,
+          sources: {
+            'google-road-tiles': {
+              type: 'raster',
+              tiles: [
+                'https://mt0.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+                'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+                'https://mt2.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+                'https://mt3.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+              ],
+              tileSize: 256,
+              attribution: '© Google Maps'
+            }
+          },
+          layers: [
+            {
+              id: 'google-road-layer',
+              type: 'raster',
+              source: 'google-road-tiles',
+              minzoom: 0,
+              maxzoom: 22,
+            }
+          ]
+        };
+      case 'google-terrain':
+        return {
+          version: 8,
+          sources: {
+            'google-terrain-tiles': {
+              type: 'raster',
+              tiles: [
+                'https://mt0.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+                'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+                'https://mt2.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+                'https://mt3.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+              ],
+              tileSize: 256,
+              attribution: '© Google Terrain'
+            }
+          },
+          layers: [
+            {
+              id: 'google-terrain-layer',
+              type: 'raster',
+              source: 'google-terrain-tiles',
+              minzoom: 0,
+              maxzoom: 20,
+            }
+          ]
         };
       case 'dark':
       default:
@@ -134,6 +197,128 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
     }
   };
 
+  const setupMapLayers = (map: maplibregl.Map) => {
+    // 1. ADD HYDROGRAPHIC NETWORKS
+    if (!map.getSource('chennai-hydro')) {
+      map.addSource('chennai-hydro', {
+        type: 'geojson',
+        data: CHENNAI_HYDRO_GEOJSON as any,
+      });
+
+      map.addLayer({
+        id: 'hydro-fill',
+        type: 'fill',
+        source: 'chennai-hydro',
+        filter: ['==', '$type', 'Polygon'],
+        paint: {
+          'fill-color': '#0284c7',
+          'fill-opacity': 0.65,
+        }
+      });
+
+      map.addLayer({
+        id: 'hydro-lines-glow',
+        type: 'line',
+        source: 'chennai-hydro',
+        filter: ['==', '$type', 'LineString'],
+        paint: {
+          'line-color': '#38bdf8',
+          'line-width': 5,
+          'line-blur': 3,
+          'line-opacity': 0.8,
+        }
+      });
+      map.addLayer({
+        id: 'hydro-lines-core',
+        type: 'line',
+        source: 'chennai-hydro',
+        filter: ['==', '$type', 'LineString'],
+        paint: {
+          'line-color': '#bae6fd',
+          'line-width': 2.5,
+        }
+      });
+    }
+
+    // 2. ADD REALISTIC 3D EXTRUDED BUILDINGS (rising directly from Google Maps coordinates)
+    if (!map.getSource('chennai-3d-buildings')) {
+      map.addSource('chennai-3d-buildings', {
+        type: 'geojson',
+        data: CHENNAI_3D_BUILDINGS_GEOJSON as any,
+      });
+
+      map.addLayer({
+        id: 'buildings-3d-extrusion',
+        type: 'fill-extrusion',
+        source: 'chennai-3d-buildings',
+        paint: {
+          'fill-extrusion-color': ['get', 'color'],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-base': ['get', 'base_height'],
+          'fill-extrusion-opacity': 0.88,
+        }
+      });
+    }
+
+    // 3. ADD FLOOD INUNDATION DELUGE POLYGONS
+    if (!map.getSource('chennai-flood-zones')) {
+      map.addSource('chennai-flood-zones', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: CHENNAI_NEIGHBOURHOODS.map((n) => ({
+            type: 'Feature',
+            properties: {
+              id: n.id,
+              name: n.name,
+              risk: n.floodRisk,
+              heat: n.heatRisk,
+              elevation: n.elevation,
+            },
+            geometry: {
+              type: 'Polygon',
+              coordinates: [[
+                [n.lng - 0.016, n.lat - 0.013],
+                [n.lng + 0.016, n.lat - 0.013],
+                [n.lng + 0.019, n.lat + 0.013],
+                [n.lng - 0.013, n.lat + 0.016],
+                [n.lng - 0.016, n.lat - 0.013],
+              ]]
+            }
+          }))
+        }
+      });
+
+      map.addLayer({
+        id: 'flood-fill-layer',
+        type: 'fill',
+        source: 'chennai-flood-zones',
+        paint: {
+          'fill-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'risk'],
+            40, '#0369a1',
+            70, '#1d4ed8',
+            90, '#dc2626'
+          ],
+          'fill-opacity': layers.opacity.floodRisk * (0.35 + (floodDepthFilter / 2.5) * 0.45),
+        }
+      });
+
+      map.addLayer({
+        id: 'flood-outline-layer',
+        type: 'line',
+        source: 'chennai-flood-zones',
+        paint: {
+          'line-color': '#22d3ee',
+          'line-width': 2,
+          'line-dasharray': [3, 2],
+        }
+      });
+    }
+  };
+
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -144,15 +329,14 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
         container: mapContainerRef.current,
         style: initialStyle as any,
         center: [city.lng, city.lat],
-        zoom: 12.2,
-        pitch: 52, // 3D perspective angle
+        zoom: 12.4,
+        pitch: 52,
         bearing: -18,
         attributionControl: false,
       });
 
       mapInstanceRef.current = map;
 
-      // Mouse move listener for real-time telemetry reticle
       map.on('mousemove', (e) => {
         const approxElevation = Math.max(
           1.2,
@@ -166,124 +350,10 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
       });
 
       map.on('load', () => {
-        // 1. ADD HYDROGRAPHIC NETWORKS (Adyar, Cooum, Buckingham Canal, Pallikaranai)
-        map.addSource('chennai-hydro', {
-          type: 'geojson',
-          data: CHENNAI_HYDRO_GEOJSON as any,
-        });
-
-        // Water bodies fill layer
-        map.addLayer({
-          id: 'hydro-fill',
-          type: 'fill',
-          source: 'chennai-hydro',
-          filter: ['==', '$type', 'Polygon'],
-          paint: {
-            'fill-color': '#0284c7',
-            'fill-opacity': 0.65,
-          }
-        });
-
-        // Water waterways linestring glow
-        map.addLayer({
-          id: 'hydro-lines-glow',
-          type: 'line',
-          source: 'chennai-hydro',
-          filter: ['==', '$type', 'LineString'],
-          paint: {
-            'line-color': '#38bdf8',
-            'line-width': 5,
-            'line-blur': 3,
-            'line-opacity': 0.8,
-          }
-        });
-        map.addLayer({
-          id: 'hydro-lines-core',
-          type: 'line',
-          source: 'chennai-hydro',
-          filter: ['==', '$type', 'LineString'],
-          paint: {
-            'line-color': '#bae6fd',
-            'line-width': 2.5,
-          }
-        });
-
-        // 2. ADD REALISTIC 3D EXTRUDED BUILDINGS LAYER
-        map.addSource('chennai-3d-buildings', {
-          type: 'geojson',
-          data: CHENNAI_3D_BUILDINGS_GEOJSON as any,
-        });
-
-        map.addLayer({
-          id: 'buildings-3d-extrusion',
-          type: 'fill-extrusion',
-          source: 'chennai-3d-buildings',
-          paint: {
-            'fill-extrusion-color': ['get', 'color'],
-            'fill-extrusion-height': ['get', 'height'],
-            'fill-extrusion-base': ['get', 'base_height'],
-            'fill-extrusion-opacity': 0.85,
-          }
-        });
-
-        // 3. ADD FLOOD INUNDATION DELUGE POLYGONS
-        map.addSource('chennai-flood-zones', {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: CHENNAI_NEIGHBOURHOODS.map((n) => ({
-              type: 'Feature',
-              properties: {
-                id: n.id,
-                name: n.name,
-                risk: n.floodRisk,
-                heat: n.heatRisk,
-                elevation: n.elevation,
-              },
-              geometry: {
-                type: 'Polygon',
-                coordinates: [[
-                  [n.lng - 0.016, n.lat - 0.013],
-                  [n.lng + 0.016, n.lat - 0.013],
-                  [n.lng + 0.019, n.lat + 0.013],
-                  [n.lng - 0.013, n.lat + 0.016],
-                  [n.lng - 0.016, n.lat - 0.013],
-                ]]
-              }
-            }))
-          }
-        });
-
-        map.addLayer({
-          id: 'flood-fill-layer',
-          type: 'fill',
-          source: 'chennai-flood-zones',
-          paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['get', 'risk'],
-              40, '#0369a1',
-              70, '#1d4ed8',
-              90, '#dc2626'
-            ],
-            'fill-opacity': layers.opacity.floodRisk * (0.35 + (floodDepthFilter / 2.5) * 0.45),
-          }
-        });
-
-        map.addLayer({
-          id: 'flood-outline-layer',
-          type: 'line',
-          source: 'chennai-flood-zones',
-          paint: {
-            'line-color': '#22d3ee',
-            'line-width': 2,
-            'line-dasharray': [3, 2],
-          }
-        });
+        setupMapLayers(map);
       });
 
-      // Markers for Neighbourhoods with Holographic Cybernetic Pins
+      // Markers for Neighbourhoods
       CHENNAI_NEIGHBOURHOODS.forEach((n) => {
         const el = document.createElement('div');
         el.className = 'group cursor-pointer select-none';
@@ -308,7 +378,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
         el.addEventListener('click', () => {
           soundFx.playRadarPing();
           setSelectedNeighbourhood(n);
-          map.flyTo({ center: [n.lng, n.lat], zoom: 13.8, pitch: 58, duration: 1400 });
+          map.flyTo({ center: [n.lng, n.lat], zoom: 14.0, pitch: 58, duration: 1400 });
         });
 
         const marker = new maplibregl.Marker({ element: el })
@@ -349,6 +419,11 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
   useEffect(() => {
     if (!mapInstanceRef.current) return;
     mapInstanceRef.current.setStyle(getStyleUrl(baseStyle) as any);
+    mapInstanceRef.current.once('style.load', () => {
+      if (mapInstanceRef.current) {
+        setupMapLayers(mapInstanceRef.current);
+      }
+    });
   }, [baseStyle]);
 
   useEffect(() => {
@@ -404,7 +479,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
   const handleResetCenter = () => {
     soundFx.playClick();
     if (!mapInstanceRef.current) return;
-    mapInstanceRef.current.flyTo({ center: [city.lng, city.lat], zoom: 12.2, pitch: 52, bearing: -18 });
+    mapInstanceRef.current.flyTo({ center: [city.lng, city.lat], zoom: 12.4, pitch: 52, bearing: -18 });
   };
 
   const handleRotatePitch = () => {
@@ -415,9 +490,15 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
     mapInstanceRef.current.easeTo({ pitch: newPitch, duration: 800 });
   };
 
+  const handleOpenGoogleMaps = () => {
+    soundFx.playClick();
+    const target = selectedNeighbourhood || city;
+    const url = `https://www.google.com/maps/@${target.lat},${target.lng},16z/data=!3m1!1e3`;
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="relative w-full h-full overflow-hidden bg-[#050811] select-none">
-      {/* MapLibre WebGL Canvas Container */}
       <div ref={mapContainerRef} className="w-full h-full" />
 
       {/* Atmospheric Scanning Radar Sweep Animation */}
@@ -446,7 +527,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
           </span>
           <span className="font-mono text-xs font-semibold text-white uppercase tracking-wider">
-            {city.name} 0.5m LiDAR Digital Twin • Real-time Hydro-Dynamic Engine
+            {city.name} Google Maps Digital Twin • 3D Buildings & Hydro Engine
           </span>
         </div>
       </div>
@@ -470,8 +551,17 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
         </span>
       </div>
 
-      {/* Top Right: Layer Controller Toggle & 3D Extrusion Toggle */}
+      {/* Top Right: Layer Controller Toggle, 3D Extrusion & Google Maps 3D Link */}
       <div className="absolute top-5 right-6 flex items-center gap-2 z-10">
+        <button
+          onClick={handleOpenGoogleMaps}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-semibold transition-all shadow-xl"
+          title="Open Current Coordinates in Google Maps 3D Satellite"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          <span>Google Maps 3D</span>
+        </button>
+
         <button
           onClick={() => {
             soundFx.playClick();
@@ -500,7 +590,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
           }`}
         >
           <Layers className="w-4 h-4 text-cyan-400" />
-          <span>GIS Overlays</span>
+          <span>GIS Layers</span>
         </button>
       </div>
 
@@ -565,13 +655,13 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
       {/* Live Cursor Coordinate & Ground Elevation Reticle HUD */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex items-center gap-3 glass-panel px-4 py-2 rounded-full border border-cyan-500/25 text-xs font-mono text-slate-300 shadow-2xl">
         <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-        <span>Reticle: <strong className="text-white">{cursorCoords.lat}°N, {cursorCoords.lng}°E</strong></span>
+        <span>Target: <strong className="text-white">{cursorCoords.lat}°N, {cursorCoords.lng}°E</strong></span>
         <span className="text-slate-600">|</span>
         <span>Elevation: <strong className="text-purple-300">{cursorCoords.elevation}m MSL</strong></span>
         <span className="text-slate-600">|</span>
-        <span>Doppler Radar: <strong className="text-cyan-300">48.2 dBZ</strong></span>
+        <span>Base: <strong className="text-cyan-300 uppercase">{baseStyle.replace('-', ' ')}</strong></span>
         <span className="text-slate-600">|</span>
-        <span>Adyar Basin Flow: <strong className="text-amber-300">18,400 cusecs</strong></span>
+        <span className="text-emerald-400 font-bold">Google Maps Active</span>
       </div>
     </div>
   );

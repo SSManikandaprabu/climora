@@ -12,7 +12,7 @@ export const CHENNAI_NEIGHBOURHOODS: NeighbourhoodData[] = [
     vegetationIndex: 0.18,
     soilSaturation: 91,
     populationExposed: '315,000 residents',
-    criticalAssets: ['Velachery MRTS Station', 'Vijayanagar Junction Underpass', 'Grand Square Drainage Basin', 'South Grid Substation'],
+    criticalAssets: ['Velachery MRTS Station', 'Vijayanagar Junction Underpass', 'Grand Square Drainage Basin', 'South Grid Substation', 'Phoenix MarketCity'],
     drainageCapacity: 'Critical Deficit',
     alertStatus: 'Emergency',
     lastUpdated: '12 seconds ago',
@@ -131,7 +131,7 @@ export const CHENNAI_NEIGHBOURHOODS: NeighbourhoodData[] = [
     vegetationIndex: 0.35,
     soilSaturation: 71,
     populationExposed: '210,000 residents',
-    criticalAssets: ['Guindy National Park Canopy', 'Saidapet Adyar Crossing', 'Industrial Estate Substations'],
+    criticalAssets: ['Guindy National Park Canopy', 'Saidapet Adyar Crossing', 'Olympia Tech Park', 'Industrial Estate Substations'],
     drainageCapacity: 'Adequate',
     alertStatus: 'Normal',
     lastUpdated: '1 minute ago',
@@ -230,7 +230,6 @@ export const SENSOR_TELEMETRY_NODES: SensorTelemetry[] = [
 export const CHENNAI_HYDRO_GEOJSON = {
   type: 'FeatureCollection',
   features: [
-    // Adyar River Path
     {
       type: 'Feature',
       properties: { name: 'Adyar River Basin', flowRate: '18,400 cusecs', risk: 'HIGH' },
@@ -243,11 +242,10 @@ export const CHENNAI_HYDRO_GEOJSON = {
           [80.200, 13.014],
           [80.235, 13.021],
           [80.252, 13.012],
-          [80.274, 13.007] // River mouth into Bay of Bengal
+          [80.274, 13.007]
         ]
       }
     },
-    // Cooum River Path
     {
       type: 'Feature',
       properties: { name: 'Cooum River Central Channel', flowRate: '12,200 cusecs', risk: 'CRITICAL' },
@@ -259,11 +257,10 @@ export const CHENNAI_HYDRO_GEOJSON = {
           [80.220, 13.075],
           [80.250, 13.069],
           [80.278, 13.068],
-          [80.288, 13.064] // Marina outfall
+          [80.288, 13.064]
         ]
       }
     },
-    // Buckingham Canal Corridor
     {
       type: 'Feature',
       properties: { name: 'Buckingham Canal Drainage Artery', flowRate: '4,500 cusecs', risk: 'CHOKED' },
@@ -280,7 +277,6 @@ export const CHENNAI_HYDRO_GEOJSON = {
         ]
       }
     },
-    // Pallikaranai Marsh Wetland Sump Polygon
     {
       type: 'Feature',
       properties: { name: 'Pallikaranai Retention Basin', saturation: 98, depth: 2.1 },
@@ -296,7 +292,6 @@ export const CHENNAI_HYDRO_GEOJSON = {
         ]]
       }
     },
-    // Velachery Flood Inundation Basin Polygon
     {
       type: 'Feature',
       properties: { name: 'Velachery Lowland Sump', saturation: 94, depth: 1.8 },
@@ -312,7 +307,6 @@ export const CHENNAI_HYDRO_GEOJSON = {
         ]]
       }
     },
-    // South OMR Tech Corridor Submergence Polygon
     {
       type: 'Feature',
       properties: { name: 'Perumbakkam IT Zone Surcharge', saturation: 92, depth: 1.5 },
@@ -330,25 +324,69 @@ export const CHENNAI_HYDRO_GEOJSON = {
   ]
 };
 
-// 3D URBAN BUILDINGS (T. Nagar commercial clusters, OMR IT parks, Guindy industrial blocks)
+// 3D REAL URBAN BUILDINGS (Accurately geo-referenced to Google Maps coordinates)
 export const CHENNAI_3D_BUILDINGS_GEOJSON = {
   type: 'FeatureCollection',
   features: [
-    // T. Nagar High-Rise Commercial Hub
+    // Chennai Central Railway Station & Ripon Building
     {
       type: 'Feature',
-      properties: { name: 'T. Nagar Commercial Towers', height: 48, base_height: 0, color: '#38bdf8' },
+      properties: { name: 'Chennai Central & Heritage Terminus', height: 45, base_height: 0, color: '#06b6d4' },
       geometry: {
         type: 'Polygon',
         coordinates: [[
-          [80.230, 13.038], [80.240, 13.038], [80.240, 13.046], [80.230, 13.046], [80.230, 13.038]
+          [80.272, 13.081], [80.278, 13.081], [80.278, 13.086], [80.272, 13.086], [80.272, 13.081]
         ]]
       }
     },
-    // OMR IT Towers (Sholinganallur & Perumbakkam)
+    // T. Nagar Panagal Park Commercial Towers
     {
       type: 'Feature',
-      properties: { name: 'OMR Cyber Park Towers', height: 72, base_height: 0, color: '#22d3ee' },
+      properties: { name: 'T. Nagar Commercial Towers', height: 54, base_height: 0, color: '#38bdf8' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.230, 13.038], [80.242, 13.038], [80.242, 13.048], [80.230, 13.048], [80.230, 13.038]
+        ]]
+      }
+    },
+    // TIDEL Park & Ascendas IT Park (Taramani/OMR)
+    {
+      type: 'Feature',
+      properties: { name: 'TIDEL Park & Ascendas Tech Towers', height: 68, base_height: 0, color: '#22d3ee' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.244, 12.987], [80.254, 12.987], [80.254, 12.995], [80.244, 12.995], [80.244, 12.987]
+        ]]
+      }
+    },
+    // Olympia Tech Park (Guindy)
+    {
+      type: 'Feature',
+      properties: { name: 'Olympia Tech Park Towers', height: 58, base_height: 0, color: '#818cf8' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.205, 13.010], [80.215, 13.010], [80.215, 13.018], [80.205, 13.018], [80.205, 13.010]
+        ]]
+      }
+    },
+    // Velachery MRTS & Phoenix MarketCity Hub
+    {
+      type: 'Feature',
+      properties: { name: 'Phoenix MarketCity & Velachery Complex', height: 42, base_height: 0, color: '#f43f5e' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.213, 12.988], [80.222, 12.988], [80.222, 12.995], [80.213, 12.995], [80.213, 12.988]
+        ]]
+      }
+    },
+    // ELCOT IT SEZ & Sholinganallur Towers (OMR)
+    {
+      type: 'Feature',
+      properties: { name: 'ELCOT IT SEZ Tech Towers', height: 75, base_height: 0, color: '#a855f7' },
       geometry: {
         type: 'Polygon',
         coordinates: [[
@@ -356,25 +394,25 @@ export const CHENNAI_3D_BUILDINGS_GEOJSON = {
         ]]
       }
     },
-    // Guindy Industrial SEZ
+    // Meenambakkam Airport Passenger Terminals & Hangars
     {
       type: 'Feature',
-      properties: { name: 'Guindy Industrial SEZ', height: 35, base_height: 0, color: '#818cf8' },
+      properties: { name: 'Chennai International Airport Terminals', height: 32, base_height: 0, color: '#3b82f6' },
       geometry: {
         type: 'Polygon',
         coordinates: [[
-          [80.208, 13.004], [80.220, 13.004], [80.220, 13.016], [80.208, 13.016], [80.208, 13.004]
+          [80.165, 12.988], [80.178, 12.988], [80.178, 12.998], [80.165, 12.998], [80.165, 12.988]
         ]]
       }
     },
-    // Velachery MRTS & Transit Hub
+    // Chepauk Stadium & Marina Coastline Towers
     {
       type: 'Feature',
-      properties: { name: 'Velachery MRTS Terminal', height: 28, base_height: 0, color: '#f43f5e' },
+      properties: { name: 'Chepauk Arena & Marina Towers', height: 50, base_height: 0, color: '#10b981' },
       geometry: {
         type: 'Polygon',
         coordinates: [[
-          [80.214, 12.978], [80.224, 12.978], [80.224, 12.986], [80.214, 12.986], [80.214, 12.978]
+          [80.276, 13.060], [80.284, 13.060], [80.284, 13.068], [80.276, 13.068], [80.276, 13.060]
         ]]
       }
     }
