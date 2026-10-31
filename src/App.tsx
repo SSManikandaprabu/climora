@@ -19,6 +19,7 @@ import { StreetInundationViewer } from './components/common/StreetInundationView
 import { EvacuationRoutesModal } from './components/common/EvacuationRoutesModal';
 import { RedAlertBanner } from './components/common/RedAlertBanner';
 import { IncidentReportModal } from './components/common/IncidentReportModal';
+import { OfflineFieldPackModal } from './components/common/OfflineFieldPackModal';
 import { CinematicIntro } from './components/intro/CinematicIntro';
 import { EarthGlobe } from './components/3d/EarthGlobe';
 import { FallbackMap2D } from './components/3d/FallbackMap2D';
@@ -63,6 +64,7 @@ export const App: React.FC = () => {
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isRedAlert, setIsRedAlert] = useState(false);
   const [isIncidentReportOpen, setIsIncidentReportOpen] = useState(false);
+  const [isFieldPackOpen, setIsFieldPackOpen] = useState(false);
 
   // Live telemetry stream state (Open-Meteo)
   const [liveWeather, setLiveWeather] = useState<LiveWeatherData | null>(null);
@@ -132,6 +134,9 @@ export const App: React.FC = () => {
       } else if (e.key.toLowerCase() === 'p') {
         soundFx.playClick();
         setIsIncidentReportOpen(true);
+      } else if (e.key.toLowerCase() === 'o') {
+        soundFx.playClick();
+        setIsFieldPackOpen(true);
       } else if (e.key === '?') {
         soundFx.playClick();
         setIsShortcutsOpen((prev) => !prev);
@@ -208,6 +213,7 @@ export const App: React.FC = () => {
         isRedAlert={isRedAlert}
         onToggleRedAlert={() => setIsRedAlert((prev) => !prev)}
         onOpenIncidentReport={() => setIsIncidentReportOpen(true)}
+        onOpenFieldPack={() => setIsFieldPackOpen(true)}
       />
 
       {/* Main Spatial Command Centre Workspace */}
@@ -478,6 +484,13 @@ export const App: React.FC = () => {
       <IncidentReportModal
         isOpen={isIncidentReportOpen}
         onClose={() => setIsIncidentReportOpen(false)}
+        city={selectedCity}
+      />
+
+      {/* OFFLINE EMERGENCY FIELD PACK */}
+      <OfflineFieldPackModal
+        isOpen={isFieldPackOpen}
+        onClose={() => setIsFieldPackOpen(false)}
         city={selectedCity}
       />
     </div>

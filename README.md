@@ -150,6 +150,7 @@ The platform targets the **Chennai Metropolitan Basin**—one of the world's mos
 | `E` | Open **Municipal Evacuation & Relief Shelter Command** |
 | `R` | Toggle **Level-4 Multi-Agency Red Alert Protocol** |
 | `P` | Open **Official Incident Situation Report (SITREP PDF)** |
+| `O` | Open **Offline Emergency Field Pack (Zero-Cellular Mode)** |
 | `D` | Open **Executive Climate Dossier** (Printable PDF) |
 | `Ctrl + K` / `Cmd + K` | Open **Global Spatial Search** |
 | `?` | Toggle **Keyboard Shortcuts Palette** |

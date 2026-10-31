@@ -153,6 +153,128 @@ export const CHENNAI_NEIGHBOURHOODS: NeighbourhoodData[] = [
     alertStatus: 'Emergency',
     lastUpdated: '10 seconds ago',
     historicalFloods: ['Storm surge, industrial chemical runoff, and creek siltation compound catastrophic risk']
+  },
+  {
+    id: 'red_hills',
+    name: 'Red Hills (Puzhal Reservoir)',
+    lat: 13.1980,
+    lng: 80.1780,
+    elevation: 16.5,
+    floodRisk: 74,
+    heatRisk: 62,
+    vegetationIndex: 0.58,
+    soilSaturation: 84,
+    populationExposed: '195,000 residents & peripheral villages',
+    criticalAssets: [
+      'Puzhal Lake Dam Sluices (3,300 mcft)',
+      'Metro Water Treatment Plant',
+      'Kosasthalaiyar Surplus Channel',
+      'Grand Northern Trunk Road'
+    ],
+    drainageCapacity: 'Adequate',
+    alertStatus: 'Warning',
+    lastUpdated: '8 seconds ago',
+    historicalFloods: [
+      '2015 surplus spillway discharge reached 12,000 cusecs into Kosasthalaiyar River',
+      '2023 Cyclone Michaung reservoir touched 94% storage threshold within 18 hours'
+    ]
+  },
+  {
+    id: 'anna_nagar',
+    name: 'Anna Nagar (Central Metro)',
+    lat: 13.0850,
+    lng: 80.2100,
+    elevation: 12.4,
+    floodRisk: 52,
+    heatRisk: 86,
+    vegetationIndex: 0.28,
+    soilSaturation: 66,
+    populationExposed: '340,000 residents',
+    criticalAssets: [
+      'Anna Nagar Tower Park Sump',
+      'Otteri Nullah Storm Canal',
+      'Thirumangalam Metro Station',
+      'Roundtana Commercial Grid'
+    ],
+    drainageCapacity: 'Reinforced',
+    alertStatus: 'Normal',
+    lastUpdated: '14 seconds ago',
+    historicalFloods: [
+      'Otteri Nullah canal overspill during 100mm/h cloudbursts; localized underpass inundation at 3rd Avenue'
+    ]
+  },
+  {
+    id: 'porur',
+    name: 'Porur & Porur Lake Basin',
+    lat: 13.0382,
+    lng: 80.1565,
+    elevation: 14.8,
+    floodRisk: 82,
+    heatRisk: 76,
+    vegetationIndex: 0.34,
+    soilSaturation: 88,
+    populationExposed: '280,000 residents & IT workers',
+    criticalAssets: [
+      'Porur Drinking Water Lake',
+      'Sri Ramachandra Institute of Higher Education',
+      'Mount-Poonamallee Highway Flyover',
+      'Porur Junction Underpass'
+    ],
+    drainageCapacity: 'Sub-optimal',
+    alertStatus: 'Warning',
+    lastUpdated: '11 seconds ago',
+    historicalFloods: [
+      '2015 lake breach submerged Porur-Kundrathur highway under 1.5m water',
+      '2023 severe junction waterlogging and Mugalivakkam drainage overflow'
+    ]
+  },
+  {
+    id: 'poonamallee',
+    name: 'Poonamallee Western Hub',
+    lat: 13.0489,
+    lng: 80.0984,
+    elevation: 18.2,
+    floodRisk: 68,
+    heatRisk: 79,
+    vegetationIndex: 0.36,
+    soilSaturation: 75,
+    populationExposed: '235,000 residents',
+    criticalAssets: [
+      'Bengaluru National Highway (NH-48) Corridor',
+      'Chennai Metro Phase-2 Depot',
+      'Cooum Western Inflow Channel',
+      'Blind Eye Lake Cascading Network'
+    ],
+    drainageCapacity: 'Sub-optimal',
+    alertStatus: 'Advisory',
+    lastUpdated: '19 seconds ago',
+    historicalFloods: [
+      'Agricultural runoff overflow from surrounding peri-urban tanks during northeast monsoon peaks'
+    ]
+  },
+  {
+    id: 'avadi',
+    name: 'Avadi Municipal Corporation',
+    lat: 13.1147,
+    lng: 80.1009,
+    elevation: 21.0,
+    floodRisk: 76,
+    heatRisk: 74,
+    vegetationIndex: 0.41,
+    soilSaturation: 84,
+    populationExposed: '375,000 residents',
+    criticalAssets: [
+      'Heavy Vehicles Factory (HVF) Complex',
+      'Paruthipattu Lake Eco-Park Basin',
+      'Avadi Railway Junction',
+      'Military Ordnance Depot'
+    ],
+    drainageCapacity: 'Sub-optimal',
+    alertStatus: 'Warning',
+    lastUpdated: '16 seconds ago',
+    historicalFloods: [
+      'Paruthipattu Lake overflow inundated surrounding residential layouts; low-lying railway subways submerged in 2023'
+    ]
   }
 ];
 
@@ -320,6 +442,38 @@ export const CHENNAI_HYDRO_GEOJSON = {
           [80.195, 12.885]
         ]]
       }
+    },
+    // Red Hills (Puzhal Lake) Drinking Water Reservoir
+    {
+      type: 'Feature',
+      properties: { name: 'Red Hills (Puzhal Lake) Reservoir Basin', saturation: 84, depth: 4.8 },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.160, 13.180],
+          [80.195, 13.182],
+          [80.205, 13.215],
+          [80.170, 13.220],
+          [80.155, 13.200],
+          [80.160, 13.180]
+        ]]
+      }
+    },
+    // Porur Lake Reservoir & Discharge Channel
+    {
+      type: 'Feature',
+      properties: { name: 'Porur Lake Reservoir Basin', saturation: 88, depth: 3.2 },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.145, 13.030],
+          [80.165, 13.032],
+          [80.168, 13.045],
+          [80.150, 13.048],
+          [80.142, 13.038],
+          [80.145, 13.030]
+        ]]
+      }
     }
   ]
 };
@@ -413,6 +567,61 @@ export const CHENNAI_3D_BUILDINGS_GEOJSON = {
         type: 'Polygon',
         coordinates: [[
           [80.276, 13.060], [80.284, 13.060], [80.284, 13.068], [80.276, 13.068], [80.276, 13.060]
+        ]]
+      }
+    },
+    // Anna Nagar Tower & Commercial Grid
+    {
+      type: 'Feature',
+      properties: { name: 'Anna Nagar Tower & Metro Grid', height: 48, base_height: 0, color: '#38bdf8' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.206, 13.082], [80.214, 13.082], [80.214, 13.088], [80.206, 13.088], [80.206, 13.082]
+        ]]
+      }
+    },
+    // Porur DLF IT Park & Medical Campus
+    {
+      type: 'Feature',
+      properties: { name: 'Porur DLF Cybercity & Sri Ramachandra Campus', height: 55, base_height: 0, color: '#06b6d4' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.152, 13.033], [80.162, 13.033], [80.162, 13.042], [80.152, 13.042], [80.152, 13.033]
+        ]]
+      }
+    },
+    // Red Hills Puzhal Water Treatment Works & Dam Crest
+    {
+      type: 'Feature',
+      properties: { name: 'Red Hills Puzhal Dam & Water Treatment Complex', height: 26, base_height: 0, color: '#22d3ee' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.174, 13.194], [80.183, 13.194], [80.183, 13.202], [80.174, 13.202], [80.174, 13.194]
+        ]]
+      }
+    },
+    // Avadi Heavy Vehicles Factory (HVF) Complex
+    {
+      type: 'Feature',
+      properties: { name: 'Avadi Heavy Vehicles Factory (HVF) Complex', height: 35, base_height: 0, color: '#f59e0b' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.096, 13.111], [80.106, 13.111], [80.106, 13.119], [80.096, 13.119], [80.096, 13.111]
+        ]]
+      }
+    },
+    // Poonamallee Metro Depot & Transport Hub
+    {
+      type: 'Feature',
+      properties: { name: 'Poonamallee Transit Hub & Metro Depot', height: 30, base_height: 0, color: '#8b5cf6' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.093, 13.045], [80.103, 13.045], [80.103, 13.053], [80.093, 13.053], [80.093, 13.045]
         ]]
       }
     }

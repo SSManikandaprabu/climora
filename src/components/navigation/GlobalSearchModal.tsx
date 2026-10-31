@@ -31,15 +31,24 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
 
   if (!isOpen) return null;
 
+  const cleanQ = query.toLowerCase().replace(/[\s\-_]/g, '');
+
   const filteredNeighbourhoods = CHENNAI_NEIGHBOURHOODS.filter(
     (n) =>
       n.name.toLowerCase().includes(query.toLowerCase()) ||
-      n.criticalAssets.some((a) => a.toLowerCase().includes(query.toLowerCase()))
+      n.name.toLowerCase().replace(/[\s\-_]/g, '').includes(cleanQ) ||
+      n.id.toLowerCase().replace(/[\s\-_]/g, '').includes(cleanQ) ||
+      n.criticalAssets.some((a) =>
+        a.toLowerCase().includes(query.toLowerCase()) ||
+        a.toLowerCase().replace(/[\s\-_]/g, '').includes(cleanQ)
+      )
   );
 
   const filteredCities = GLOBAL_CITIES.filter(
     (c) =>
       c.name.toLowerCase().includes(query.toLowerCase()) ||
+      c.name.toLowerCase().replace(/[\s\-_]/g, '').includes(cleanQ) ||
+      c.id.toLowerCase().replace(/[\s\-_]/g, '').includes(cleanQ) ||
       c.country.toLowerCase().includes(query.toLowerCase())
   );
 

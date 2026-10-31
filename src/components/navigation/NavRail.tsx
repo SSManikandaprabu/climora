@@ -15,6 +15,7 @@ import {
   Navigation,
   AlertOctagon,
   FileSpreadsheet,
+  WifiOff,
 } from 'lucide-react';
 import { soundFx } from '../../utils/audioSynthesizer';
 
@@ -31,6 +32,7 @@ interface NavRailProps {
   isRedAlert?: boolean;
   onToggleRedAlert?: () => void;
   onOpenIncidentReport?: () => void;
+  onOpenFieldPack?: () => void;
 }
 
 export const NavRail: React.FC<NavRailProps> = ({
@@ -46,6 +48,7 @@ export const NavRail: React.FC<NavRailProps> = ({
   isRedAlert = false,
   onToggleRedAlert,
   onOpenIncidentReport,
+  onOpenFieldPack,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -298,6 +301,25 @@ export const NavRail: React.FC<NavRailProps> = ({
               <div className="text-left overflow-hidden whitespace-nowrap font-mono text-xs">
                 <span className="text-white block font-medium">Incident SITREP</span>
                 <span className="text-[9px] text-cyan-400/80">Printable Official PDF</span>
+              </div>
+            )}
+          </button>
+        )}
+
+        {onOpenFieldPack && (
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              onOpenFieldPack();
+            }}
+            className="w-full flex items-center gap-3.5 p-2.5 rounded-xl text-slate-400 hover:text-amber-300 hover:bg-slate-800/60 transition-all group relative"
+            title="Offline Emergency Field Pack (O)"
+          >
+            <WifiOff className="w-5 h-5 flex-shrink-0 text-amber-400" />
+            {isExpanded && (
+              <div className="text-left overflow-hidden whitespace-nowrap font-mono text-xs">
+                <span className="text-white block font-medium">Offline Field Pack</span>
+                <span className="text-[9px] text-amber-400/80">Zero-Cellular Bundle</span>
               </div>
             )}
           </button>

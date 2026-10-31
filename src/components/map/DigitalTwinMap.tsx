@@ -13,6 +13,7 @@ import { getCityGeoBundle } from '../../data/multiCityGeoData';
 import { LayerController, MapBaseStyle } from './LayerController';
 import { NeighbourhoodModal } from './NeighbourhoodModal';
 import { EvacuationRoutesModal } from '../common/EvacuationRoutesModal';
+import { CinematicDroneTour, TourWaypoint } from './CinematicDroneTour';
 import { soundFx } from '../../utils/audioSynthesizer';
 import {
   Layers,
@@ -26,6 +27,8 @@ import {
   Building2,
   ExternalLink,
   Navigation,
+  Radar,
+  Video,
 } from 'lucide-react';
 
 interface DigitalTwinMapProps {
@@ -59,6 +62,8 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
   const [baseStyle, setBaseStyle] = useState<MapBaseStyle>('google-hybrid');
   const [floodDepthFilter, setFloodDepthFilter] = useState<number>(1.4); // Water depth in meters (0.2 to 2.5m)
   const [show3DBuildings, setShow3DBuildings] = useState<boolean>(true);
+  const [showDopplerRadar, setShowDopplerRadar] = useState<boolean>(true);
+  const [isTourActive, setIsTourActive] = useState<boolean>(false);
   const [cursorCoords, setCursorCoords] = useState<{ lat: number; lng: number; elevation: number }>({
     lat: city.lat,
     lng: city.lng,
@@ -329,6 +334,105 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
         }
       });
     }
+
+    // 4. ADD DOPPLER RADAR RANGE RINGS & CONVECTIVE RAIN CELLS
+    if (!map.getSource('city-doppler-radar')) {
+      const radarCenterLng = city.lng;
+      const radarCenterLat = city.lat;
+
+      // Range rings at 15km, 30km, 45km, 60km
+      const ringFeatures = [0.06, 0.12, 0.20, 0.30].map((radiusDeg, idx) => {
+        const coords: [number, number][] = [];
+        for (let a = 0; a <= 360; a += 10) {
+          const rad = (a * Math.PI) / 180;
+          coords.push([
+            radarCenterLng + radiusDeg * Math.cos(rad) * 1.15,
+            radarCenterLat + radiusDeg * Math.sin(rad),
+          ]);
+        }
+        return {
+          type: 'Feature',
+          properties: { ring: (idx + 1) * 15, label: `${(idx + 1) * 15} km` },
+          geometry: { type: 'LineString', coordinates: coords },
+        };
+      });
+
+      // Convective storm rain bands approaching coastal delta
+      const rainCells = [
+        {
+          name: 'Heavy Convective Band',
+          dbz: 55,
+          color: '#ef4444',
+          coords: [
+            [radarCenterLng + 0.02, radarCenterLat - 0.04],
+            [radarCenterLng + 0.08, radarCenterLat + 0.01],
+            [radarCenterLng + 0.06, radarCenterLat + 0.09],
+            [radarCenterLng - 0.01, radarCenterLat + 0.05],
+            [radarCenterLng + 0.02, radarCenterLat - 0.04]
+          ]
+        },
+        {
+          name: 'Moderate Monsoon Influx',
+          dbz: 42,
+          color: '#10b981',
+          coords: [
+            [radarCenterLng - 0.06, radarCenterLat - 0.08],
+            [radarCenterLng + 0.01, radarCenterLat - 0.05],
+            [radarCenterLng - 0.02, radarCenterLat + 0.03],
+            [radarCenterLng - 0.09, radarCenterLat - 0.02],
+            [radarCenterLng - 0.06, radarCenterLat - 0.08]
+          ]
+        },
+        {
+          name: 'Intense Cyclonic Core Band',
+          dbz: 62,
+          color: '#d946ef',
+          coords: [
+            [radarCenterLng + 0.04, radarCenterLat + 0.02],
+            [radarCenterLng + 0.07, radarCenterLat + 0.04],
+            [radarCenterLng + 0.05, radarCenterLat + 0.08],
+            [radarCenterLng + 0.02, radarCenterLat + 0.06],
+            [radarCenterLng + 0.04, radarCenterLat + 0.02]
+          ]
+        }
+      ].map((cell) => ({
+        type: 'Feature',
+        properties: { name: cell.name, dbz: cell.dbz, color: cell.color },
+        geometry: { type: 'Polygon', coordinates: [cell.coords] },
+      }));
+
+      map.addSource('city-doppler-radar', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [...ringFeatures, ...rainCells] as any,
+        },
+      });
+
+      map.addLayer({
+        id: 'doppler-rain-cells',
+        type: 'fill',
+        source: 'city-doppler-radar',
+        filter: ['==', '$type', 'Polygon'],
+        paint: {
+          'fill-color': ['get', 'color'],
+          'fill-opacity': showDopplerRadar ? 0.62 : 0,
+        },
+      });
+
+      map.addLayer({
+        id: 'doppler-range-rings',
+        type: 'line',
+        source: 'city-doppler-radar',
+        filter: ['==', '$type', 'LineString'],
+        paint: {
+          'line-color': '#22d3ee',
+          'line-width': 1.5,
+          'line-dasharray': [4, 4],
+          'line-opacity': showDopplerRadar ? 0.55 : 0,
+        },
+      });
+    }
   };
 
   useEffect(() => {
@@ -464,7 +568,13 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
     if (map.getLayer('buildings-3d-extrusion')) {
       map.setLayoutProperty('buildings-3d-extrusion', 'visibility', show3DBuildings ? 'visible' : 'none');
     }
-  }, [layers, floodDepthFilter, show3DBuildings]);
+    if (map.getLayer('doppler-rain-cells')) {
+      map.setPaintProperty('doppler-rain-cells', 'fill-opacity', showDopplerRadar ? 0.62 : 0);
+    }
+    if (map.getLayer('doppler-range-rings')) {
+      map.setPaintProperty('doppler-range-rings', 'line-opacity', showDopplerRadar ? 0.55 : 0);
+    }
+  }, [layers, floodDepthFilter, show3DBuildings, showDopplerRadar]);
 
   const toggleLayer = (layerKey: keyof Omit<MapLayerState, 'opacity'>) => {
     soundFx.playClick();
@@ -564,8 +674,39 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
           <span className="font-bold text-cyan-300 font-mono text-xs w-10">{floodDepthFilter.toFixed(1)}m</span>
         </div>
 
-        {/* Right: 3D Blocks, GIS Layers, Google Maps 3D */}
+        {/* Right: Doppler Radar, Drone Tour, 3D Blocks, GIS Layers, Google Maps 3D */}
         <div className="flex items-center gap-1.5 sm:gap-2 pointer-events-auto flex-shrink-0">
+          {/* Live Doppler Radar Toggle */}
+          <button
+            onClick={() => {
+              soundFx.playRadarPing();
+              setShowDopplerRadar(!showDopplerRadar);
+            }}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium transition-all shadow-lg ${
+              showDopplerRadar
+                ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                : 'glass-panel text-slate-400 hover:text-white border border-white/10'
+            }`}
+            title="Toggle Live Doppler Weather Radar (dBZ Reflectivity & Range Rings)"
+          >
+            <Radar className={`w-3.5 h-3.5 ${showDopplerRadar ? 'text-emerald-400 animate-spin' : 'text-slate-400'}`} />
+            <span className="hidden sm:inline">Doppler</span>
+            <span className="text-[10px] opacity-80">{showDopplerRadar ? '55 dBZ' : 'Off'}</span>
+          </button>
+
+          {/* Cinematic Aerial Drone Tour */}
+          <button
+            onClick={() => {
+              soundFx.playRadarPing();
+              setIsTourActive(true);
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/45 text-cyan-300 border border-cyan-500/50 text-xs font-mono font-bold transition-all shadow-lg"
+            title="Launch Autonomous 3D Aerial Drone Patrol Tour"
+          >
+            <Video className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="hidden sm:inline">Drone Tour</span>
+          </button>
+
           <button
             onClick={() => {
               soundFx.playClick();
@@ -676,6 +817,25 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
         <span className="text-slate-600">|</span>
         <span className="text-emerald-400 font-semibold">Google Hybrid Active</span>
       </div>
+
+      {/* AUTONOMOUS 3D AERIAL DRONE PATROL TOUR OVERLAY */}
+      <CinematicDroneTour
+        isActive={isTourActive}
+        onClose={() => setIsTourActive(false)}
+        city={city}
+        onFlyTo={(wp: TourWaypoint) => {
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.flyTo({
+              center: [wp.lng, wp.lat],
+              zoom: wp.zoom,
+              pitch: wp.pitch,
+              bearing: wp.bearing,
+              duration: 3500,
+              essential: true,
+            });
+          }
+        }}
+      />
     </div>
   );
 };

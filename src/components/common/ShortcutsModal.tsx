@@ -23,6 +23,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose 
     { key: 'E', desc: 'Open Municipal Evacuation Corridors & Relief Shelters' },
     { key: 'R', desc: 'Toggle Level-4 Multi-Agency Red Alert Protocol' },
     { key: 'P', desc: 'Open Printable Multi-Agency Incident Situation Report (SITREP)' },
+    { key: 'O', desc: 'Open Offline Disaster Field Pack (Zero-Cellular Mode)' },
     { key: 'D', desc: 'Open Executive Climate Intelligence Dossier' },
     { key: '?', desc: 'Toggle this Shortcuts Palette' },
     { key: 'Esc', desc: 'Close any active modal or drawer' },
