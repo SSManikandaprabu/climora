@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Cpu, Save, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Cpu, Save, RefreshCw, AlertTriangle, CheckCircle2, ShieldCheck, Wrench, Droplets, Waves, Trees } from 'lucide-react';
 import { CLIMATE_SCENARIOS } from '../../data/climateScenarios';
+import { soundFx } from '../../utils/audioSynthesizer';
 
 export const ScenarioSimulator: React.FC = () => {
   const [rainfallRate, setRainfallRate] = useState<number>(35); // mm/h
@@ -8,6 +9,14 @@ export const ScenarioSimulator: React.FC = () => {
   const [tempIncrease, setTempIncrease] = useState<number>(2.0); // °C
   const [canopyChange, setCanopyChange] = useState<number>(0); // % change (-30 to +30)
   const [seaLevelSurge, setSeaLevelSurge] = useState<number>(0.6); // meters
+
+  // Active Municipal Engineering Interventions
+  const [interventions, setInterventions] = useState({
+    canalDesilting: false,       // -18% flood extent
+    emergencyPumping: false,     // -12% flood extent
+    wetlandRestoration: false,   // -15% flood extent, -0.4°C UHI
+    tidalSurgeGates: false,      // -22% storm surge backflow
+  });
 
   const [simulationMode, setSimulationMode] = useState<'side_by_side' | 'scenario' | 'baseline'>('side_by_side');
   const [savedFeedback, setSavedFeedback] = useState(false);
@@ -21,28 +30,66 @@ export const ScenarioSimulator: React.FC = () => {
     const vegetationBuffer = 1 - (canopyChange * 0.008);
     const surgeMultiplier = 1 + (seaLevelSurge * 0.45);
 
-    const inundationArea = Math.min(
+    // Calculate raw unmitigated inundation
+    const rawInundationArea = Math.min(
       180,
       baselineInundationSqKm + (excessRainfall * 0.28 * vegetationBuffer * surgeMultiplier)
     );
 
-    const populationExposed = Math.round(inundationArea * 8800);
+    // Calculate mitigation efficiency from active interventions
+    let mitigationRatio = 0;
+    let directAvertedEconLoss = 0;
 
-    const economicLoss = Math.round(
-      baselineEconLossMillions + (inundationArea * 24.5) + (tempIncrease * 180)
+    if (interventions.canalDesilting) {
+      mitigationRatio += 0.18;
+      directAvertedEconLoss += 95;
+    }
+    if (interventions.emergencyPumping) {
+      mitigationRatio += 0.12;
+      directAvertedEconLoss += 65;
+    }
+    if (interventions.wetlandRestoration) {
+      mitigationRatio += 0.15;
+      directAvertedEconLoss += 110;
+    }
+    if (interventions.tidalSurgeGates) {
+      mitigationRatio += 0.22;
+      directAvertedEconLoss += 140;
+    }
+
+    const effectiveInundationArea = Math.max(
+      baselineInundationSqKm * 0.6,
+      rawInundationArea * (1 - Math.min(0.55, mitigationRatio))
     );
 
-    const peakUHI = 3.6 + (tempIncrease * 0.8) - (canopyChange * 0.04);
+    const populationExposed = Math.round(effectiveInundationArea * 8800);
+
+    const unmitigatedEconLoss = Math.round(
+      baselineEconLossMillions + (rawInundationArea * 24.5) + (tempIncrease * 180)
+    );
+
+    const economicLoss = Math.max(
+      baselineEconLossMillions,
+      unmitigatedEconLoss - directAvertedEconLoss
+    );
+
+    const avertedEconomicLoss = unmitigatedEconLoss - economicLoss;
+    const avertedInundatedArea = Number((rawInundationArea - effectiveInundationArea).toFixed(1));
+
+    const peakUHI = 3.6 + (tempIncrease * 0.8) - (canopyChange * 0.04) - (interventions.wetlandRestoration ? 0.4 : 0);
 
     return {
       totalRainfall,
-      inundationArea: Number(inundationArea.toFixed(1)),
+      inundationArea: Number(effectiveInundationArea.toFixed(1)),
+      rawInundationArea: Number(rawInundationArea.toFixed(1)),
+      avertedInundatedArea,
       populationExposed,
       economicLoss,
+      avertedEconomicLoss,
       peakUHI: Number(peakUHI.toFixed(1)),
-      criticalAssetsCount: Math.min(42, Math.round(inundationArea * 0.35)),
+      criticalAssetsCount: Math.min(42, Math.round(effectiveInundationArea * 0.35)),
     };
-  }, [rainfallRate, durationHours, tempIncrease, canopyChange, seaLevelSurge]);
+  }, [rainfallRate, durationHours, tempIncrease, canopyChange, seaLevelSurge, interventions]);
 
   const handleApplyPreset = (scenarioId: string) => {
     const sc = CLIMATE_SCENARIOS.find((s) => s.id === scenarioId);
@@ -223,6 +270,85 @@ export const ScenarioSimulator: React.FC = () => {
                 <span>+30% (Sponge Corridors)</span>
               </div>
             </div>
+
+            {/* Active Municipal Engineering Interventions */}
+            <div className="p-3.5 rounded-xl bg-slate-900/60 border border-emerald-500/25 space-y-2 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold text-emerald-300 flex items-center gap-1.5 uppercase">
+                  <Wrench className="w-3.5 h-3.5 text-emerald-400" />
+                  Engineering Interventions
+                </span>
+                <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                  GCC Sandbox
+                </span>
+              </div>
+
+              <div className="space-y-1.5 text-xs font-mono">
+                <label className="flex items-center justify-between p-2 rounded-lg bg-slate-950/50 border border-white/5 cursor-pointer hover:border-emerald-500/30 transition-colors">
+                  <span className="flex items-center gap-2 text-slate-200 text-[11px]">
+                    <input
+                      type="checkbox"
+                      checked={interventions.canalDesilting}
+                      onChange={() => {
+                        soundFx.playClick();
+                        setInterventions((prev) => ({ ...prev, canalDesilting: !prev.canalDesilting }));
+                      }}
+                      className="rounded border-slate-700 text-emerald-400 focus:ring-0 w-3.5 h-3.5 bg-slate-800"
+                    />
+                    Canal Deep Desilting (+35% drain)
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-bold">-18% Risk</span>
+                </label>
+
+                <label className="flex items-center justify-between p-2 rounded-lg bg-slate-950/50 border border-white/5 cursor-pointer hover:border-blue-500/30 transition-colors">
+                  <span className="flex items-center gap-2 text-slate-200 text-[11px]">
+                    <input
+                      type="checkbox"
+                      checked={interventions.emergencyPumping}
+                      onChange={() => {
+                        soundFx.playClick();
+                        setInterventions((prev) => ({ ...prev, emergencyPumping: !prev.emergencyPumping }));
+                      }}
+                      className="rounded border-slate-700 text-blue-400 focus:ring-0 w-3.5 h-3.5 bg-slate-800"
+                    />
+                    Heavy Sump Pumps (150 MLD)
+                  </span>
+                  <span className="text-[10px] text-blue-400 font-bold">-12% Risk</span>
+                </label>
+
+                <label className="flex items-center justify-between p-2 rounded-lg bg-slate-950/50 border border-white/5 cursor-pointer hover:border-emerald-500/30 transition-colors">
+                  <span className="flex items-center gap-2 text-slate-200 text-[11px]">
+                    <input
+                      type="checkbox"
+                      checked={interventions.wetlandRestoration}
+                      onChange={() => {
+                        soundFx.playClick();
+                        setInterventions((prev) => ({ ...prev, wetlandRestoration: !prev.wetlandRestoration }));
+                      }}
+                      className="rounded border-slate-700 text-emerald-400 focus:ring-0 w-3.5 h-3.5 bg-slate-800"
+                    />
+                    Pallikaranai Sponge Basin Buffer
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-bold">-15% Risk</span>
+                </label>
+
+                <label className="flex items-center justify-between p-2 rounded-lg bg-slate-950/50 border border-white/5 cursor-pointer hover:border-purple-500/30 transition-colors">
+                  <span className="flex items-center gap-2 text-slate-200 text-[11px]">
+                    <input
+                      type="checkbox"
+                      checked={interventions.tidalSurgeGates}
+                      onChange={() => {
+                        soundFx.playClick();
+                        setInterventions((prev) => ({ ...prev, tidalSurgeGates: !prev.tidalSurgeGates }));
+                      }}
+                      className="rounded border-slate-700 text-purple-400 focus:ring-0 w-3.5 h-3.5 bg-slate-800"
+                    />
+                    Estuary Tidal Backflow Gates
+                  </span>
+                  <span className="text-[10px] text-purple-400 font-bold">-22% Surge</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           {/* Action Row */}
@@ -366,6 +492,29 @@ export const ScenarioSimulator: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Active Engineering Interventions ROI & Averted Loss Banner */}
+          {calculatedImpacts.avertedEconomicLoss > 0 && (
+            <div className="p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/50 via-slate-900/60 to-cyan-950/50 border border-emerald-500/40 flex items-center justify-between text-xs font-mono shadow-xl animate-in fade-in">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  <ShieldCheck className="w-4 h-4 animate-pulse" />
+                </div>
+                <div>
+                  <span className="font-bold text-white block">Intervention Countermeasures Active</span>
+                  <span className="text-[11px] text-emerald-300">
+                    Mitigating -{calculatedImpacts.avertedInundatedArea} km² of floodwaters across vulnerable basins
+                  </span>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] text-slate-400 block uppercase">Estimated Loss Averted</span>
+                <span className="text-base font-bold text-emerald-300">
+                  +${calculatedImpacts.avertedEconomicLoss}M USD
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Scientific Disclaimer Badge */}
           <div className="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-3">
