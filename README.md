@@ -2,11 +2,9 @@
 
 <div align="center">
 
-![ClimateTwin X Banner](https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg)
-
 ### *"See the Future of Your City."*
 
-An enterprise-grade, cinematic climate intelligence command centre engineered for municipal climate resilience, high-resolution 3D hydrodynamic flood modeling, and compound disaster mitigation.
+An enterprise-grade, cinematic climate intelligence command centre engineered for municipal climate resilience, high-resolution 3D hydrodynamic flood modeling, planetary vector flow dynamics, and compound disaster mitigation.
 
 [![React](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -16,7 +14,7 @@ An enterprise-grade, cinematic climate intelligence command centre engineered fo
 [![Vite](https://img.shields.io/badge/Vite-6.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-[Live Demo](http://localhost:5173) • [Documentation](#-key-modules) • [Architecture](#-architecture--system-design) • [Quick Start](#-quick-start)
+[Features](#-breakthrough-features) • [Architecture](#-architecture--system-design) • [Keyboard Shortcuts](#-keyboard-shortcuts) • [Quick Start](#-quick-start) • [Provenance](#-data-provenance--scientific-provenance)
 
 </div>
 
@@ -33,108 +31,125 @@ The platform targets the **Chennai Metropolitan Basin**—one of the world's mos
 ## 🛰️ Architecture & System Design
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                          CLIMATETWIN X PLATFORM                        │
-├─────────────────────┬────────────────────┬─────────────────────────────┤
-│   3D PLANETARY      │   DIGITAL TWIN     │    CLIMATE INTELLIGENCE     │
-│   ORBIT (Three.js)  │   GIS (MapLibre)   │    & PREDICTIVE SIMULATOR   │
-├─────────────────────┼────────────────────┼─────────────────────────────┤
-│ • NASA Blue Marble  │ • Google Hybrid/Sat│ • Specialized Instruments   │
-│ • 3,800-Vector Flow │ • 3D Buildings     │ • Coupled Hydro-Sandbox     │
-│ • Cyclone Vortices  │ • Water Scrubber   │ • Municipal Interventions   │
-│ • Teleconnections   │ • Hydro Network    │ • Averted Loss ROI Counter  │
-├─────────────────────┴────────────────────┴─────────────────────────────┤
-│         LIVE DATA STREAM: Open-Meteo ECMWF + Copernicus ERA5 + IMD     │
-└────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 CLIMATETWIN X PLATFORM                                 │
+├──────────────────────────┬─────────────────────────────┬───────────────────────────────┤
+│    3D PLANETARY ORBIT    │      DIGITAL TWIN GIS       │     CLIMATE INTELLIGENCE      │
+│        (Three.js)        │     (MapLibre / Google)     │     & PREDICTIVE SIMULATOR    │
+├──────────────────────────┼─────────────────────────────┼───────────────────────────────┤
+│ • NASA Blue Marble PBR   │ • Google Hybrid/Sat Layers  │ • Doppler Precipitation Radar │
+│ • 3,800 GPU Vector Flow  │ • 3D Building Extrusions    │ • Urban Heat Anomaly (UHI)    │
+│ • Cyclone Vortices       │ • Water Scrubber (0.2–2.5m) │ • Coupled Hydro-Sandbox       │
+│ • Global Teleconnections │ • Hydrographic Network      │ • Municipal Countermeasures   │
+│ • Satellite Orbits       │ • Micro-Elevation Grids     │ • Live Averted Loss & ROI     │
+├──────────────────────────┴─────────────────────────────┴───────────────────────────────┤
+│  TACTICAL MODULES: Cyclone Radar • Satellite Time-Lapse • IoT Telemetry • 3D Street Cam │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│             LIVE DATA: Open-Meteo ECMWF • Copernicus ERA5 • IMD Doppler • USGS         │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🎨 Color System & Visual Identity
+## ⚡ Breakthrough Features
+
+### 1. 🌀 Bay of Bengal Cyclone Trajectory & Wind Cone Radar (`C`)
+* **Real-time Storm Telemetry**: Tracks Severe Cyclonic Storm "Michaung-9" with central barometric pressure (`972 hPa`), peak sustained winds (`125 km/h`), and surge forecasts.
+* **Interactive 6-Waypoint Trajectory Stepper**: Step through `-12h` past observation to `+24h` projected landfall with automated simulation replay.
+* **Dynamic Danger Radii**: Dynamic calculation of Gale (R34), Storm (R50), and Hurricane (R64) wind radii with one-click trajectory mapping onto the 3D twin.
+
+### 2. 🛰️ Historical Satellite Time-Lapse Split Lens (`T`)
+* **Interactive Dragging Comparison Slider**: Real-time split-screen lens comparing Landsat 7 (Year 2000) versus Sentinel-2 (Year 2026).
+* **3 Critical Ecological Hotspots**:
+  * **Pallikaranai Marsh & OMR IT Corridor**: -78% natural sponge wetland loss, +320% concrete impervious spread.
+  * **Velachery Low-Lying Drainage Basin**: Severe natural outfall encroachment.
+  * **Ennore Creek & Thermal Outfall**: Industrial sedimentation and tidal buffer reduction.
+* **Live Environmental Metrics HUD**: Quantitative delta calculations dynamically updated during lens exploration.
+
+### 3. 🌊 IoT River Gauge & Sluice Gate Telemetry Array (`I`)
+* **Live Simulated Ultrasonic Sensors**: High-frequency telemetry tracking water stage elevation, discharge velocity, and battery levels across key drainage nodes:
+  * Saidapet Bridge (Adyar River)
+  * Kotturpuram Sluice Gate
+  * Velachery Lake Weir
+  * Chembarambakkam Dam Outfall
+  * Ennore Buckingham Canal
+* **Automated Risk Triaging**: Color-coded status alerts (`Normal`, `Watch`, `Critical Danger`) with 1-click camera lock onto the physical sensor coordinates.
+
+### 4. 🥽 First-Person 3D Street-Level Inundation Camera (`S`)
+* **Ground-Level Three.js Fluid Simulation**: Realistic water plane rising dynamically across Velachery MRTS Underpass & Vijayanagar Junction.
+* **Depth Scrubber (`0.0m` to `2.5m`)**: Real-time physics testing against street curbs, pavement, vehicles, and utility infrastructure.
+* **Multi-Angle Camera Perspectives**: Toggle seamlessly between `Pedestrian Eye Level` (1.7m), `Driver View` (1.1m), and `Overhead Drone` (6.5m).
+* **Automatic Hazard Detection**: Triggers vehicle engine stall warnings at `0.3m` and high-voltage grid trip alerts at `0.8m`.
+
+### 5. 🌐 Planetary 3D Earth Orbit with Vector Flow Dynamics
+* **NASA Blue Marble PBR Textures**: High-resolution photorealistic day/night textures, specular ocean water reflection, and atmospheric cloud layers.
+* **3,800 GPU-Accelerated Vector Streamlines**: Real-time geophysical circulation animating Monsoon Vortices over the Bay of Bengal, Mid-Latitude Jet Streams, and Thermohaline Ocean Conveyors.
+* **Sub-Orbital Satellites & Port Teleconnections**: Live-orbiting Sentinel-2A and GPM satellites linked via glowing sub-surface teleconnection arcs to partner delta cities.
+
+### 6. 🗺️ High-Resolution Google Maps GIS Digital Twin
+* **Google Cartographic Baselayers**: Seamlessly switch between Google Hybrid (Satellite + Buildings), Pure Photorealistic Satellite, Google Roadmap, and Google Terrain.
+* **3D Building Extrusions**: Accurate dimensional footprints for landmark Chennai infrastructure (Central Station, TIDEL Park, Olympia Tech Park, Phoenix Marketcity, Chepauk).
+* **De-congested Spatial Layout**: Modernized fluid viewport with collapsible layer drawers, non-colliding metric HUD, and ultra-fast LiDAR elevation contouring.
+
+### 7. 🧪 Scenario Simulator & Municipal ROI Counter
+* **Multi-Variable Stress Testing**: Adjust precipitation intensity (0–150 mm/h), deluge duration (1–72h), global temperature anomaly (+0.5°C to +4.0°C), and sea-level rise (+0.0m to +2.0m).
+* **Active Municipal Interventions**:
+  * *Canal Deep Desilting* (+35% discharge capacity → **-18% flood risk**)
+  * *Mobile High-Capacity Pumps* (150 MLD strategic deployment → **-12% flood risk**)
+  * *Pallikaranai Sponge Restoration* (1,200 Ha wetland revival → **-15% flood risk & -0.4°C cooling**)
+  * *Tidal Backflow Surge Gates* (Marina & Ennore barrage closure → **-22% storm surge**)
+* **Live Averted Loss Metric**: Immediate dynamic computation of saved municipal capital (e.g. `+$235M USD Averted`).
+
+### 8. 🚨 Municipal Evacuation & NDRF Relief Shelter Command (`E`)
+* **Designated High-Ground Sanctuaries**: Real-time status for Anna University CEG, Jawaharlal Nehru Stadium, Loyola College, Tambaram Air Base, and Phoenix High Grounds.
+* **Tactical Life-Support Tracking**: Capacity %, potable water days, generator diesel fuel, triage medical doctors, and NDRF motorized rescue boats.
+* **Safe Evacuation Corridors**: Mapped elevated transit arteries avoiding submerged underpasses.
+
+### 9. 🤖 AI Climate Analyst Engine — Aether-9
+* **Natural Language Synthesizer**: Natural language intelligence trained on IPCC AR6 guidelines and localized hydrodynamic drainage studies.
+* **Bidirectional Map Synchronization**: Directly interrogating the AI commands the 3D twin camera to focus on specific wards and vulnerable sumps.
+* **Executive Briefing Export**: One-click generation of comprehensive municipal briefing documents.
+
+---
+
+## 🎨 Design System & Visual Tokens
 
 | Token | Hex | Role |
 | :--- | :--- | :--- |
 | **Primary Background** | `#050811` | Deep space atmospheric black |
-| **Secondary Background** | `#090F1B` | Navigational substrate |
+| **Secondary Background** | `#090F1B` | Tactical navigation substrate |
 | **Surface** | `#0D1725` | Glassmorphic instrument base |
-| **Elevated Surface** | `#111E2E` | Highlighted floating intelligence cards |
+| **Elevated Surface** | `#111E2E` | Floating spatial cards |
 | **Cyan** | `#22D3EE` | Telemetry live signals & LiDAR contours |
 | **Electric Blue** | `#3B82F6` | Precipitation & hydrological flow paths |
-| **Aurora Purple** | `#8B5CF6` | Scenario simulations & IPCC models |
+| **Aurora Purple** | `#8B5CF6` | Scenario simulations & IPCC projections |
 | **Emerald** | `#10B981` | Relief shelters, safe corridors & mitigation ROI |
 | **Danger** | `#EF4444` | Category-3 inundation & emergency alerts |
 | **Warning** | `#F59E0B` | Urban heat island thermal stress |
-| **White / Text** | `#F8FAFC` | Primary metric typography |
-| **Muted Slate** | `#94A3B8` | Telemetry provenance & coordinates |
 
 ### Typography
-- **Headings**: `Space Grotesk` (Geometric, scientific, authoritative)
-- **Body**: `Inter` (Optimized optical density for data legibility)
-- **Telemetry / Instruments**: `JetBrains Mono` (Coordinates, radar decibels, latency)
-
----
-
-## 🚀 Key Modules
-
-### 1. Planetary 3D Earth Orbit (`EarthGlobe.tsx`)
-* **NASA Blue Marble Day/Night PBR**: Authentic high-resolution satellite imagery paired with NASA Black Marble night city lights and specular ocean reflection masks.
-* **Geophysical Fluid Dynamics (3,800 Flow Streamlines)**: GPU-accelerated spherical vector field animating planetary wind circulation across 3 selectable modes:
-  * 🌀 **Monsoon Vortex**: South-westerly monsoon winds sweeping into a cyclonic storm spiral over the Bay of Bengal into Chennai.
-  * 💨 **Jet Stream**: High-velocity mid-latitude wind belts with undulating Rossby waves.
-  * 🌊 **Ocean Conveyor**: Thermohaline gyres and currents.
-* **Constellations & Teleconnections**: Live-orbiting Sentinel-2A and GPM Core satellites, glowing altitude pins, and 3D teleconnection arcs linking Chennai to partner delta ports.
-
-### 2. Google Maps Digital Twin GIS (`DigitalTwinMap.tsx`)
-* **Photorealistic Google Baselayers**: Instant toggling between Google Hybrid (Satellite + Labels), Pure Satellite, Roadmap, Google Terrain (Contours), and Sci-Fi Dark Vector.
-* **3D Urban Architecture Extrusions**: Extruded building footprints with true-to-life heights for Chennai Central, TIDEL Park, Olympia Tech Park, Phoenix Marketcity, ELCOT IT SEZ, Airport, and Chepauk.
-* **Inundation Water Scrubber**: Interactive water level slider from `0.2m` to `2.5m` simulating tidal backflow and extreme storm deluges.
-* **Hydrographic Network**: High-precision vector layers for Adyar River, Cooum River, Buckingham Canal, and the Pallikaranai wetland basin.
-* **De-congested Spatial Layout**: Unified top command bar with on-demand collapsible layer drawers and non-intrusive floating intelligence cards.
-
-### 3. Specialized Scientific Instruments (`src/components/intelligence/`)
-* **Thermal Instrument (`TemperatureGauge.tsx`)**: Surface air temperature, ERA5 30-year climatological anomaly, and diurnal curve tracking.
-* **Precipitation Doppler Radar (`RainfallIntensity.tsx`)**: Dual-polarized radar reflectivity in dBZ, 24-hour accumulation, and historical deluge comparison benchmarks.
-* **Compound Flood Risk Index (`FloodRiskGauge.tsx`)**: Composite 0–100 risk score incorporating elevation MSL, soil saturation %, and tidal surge resistance.
-* **Urban Heat Island & Canopy (`HeatExposureGauge.tsx`)**: Microclimate thermal anomaly (+3.6°C UHI) paired with satellite NDVI vegetation indices.
-* **Atmospheric Telemetry (`EnvironmentalQuality.tsx`)**: Relative humidity, barometric pressure, wind vectors, and CPCB/IMD air quality indices with real-time Open-Meteo ECMWF synchronization.
-
-### 4. Predictive Scenario Simulator & Municipal ROI Sandbox (`ScenarioSimulator.tsx`)
-* **Coupled Hydro-Meteorological Sandbox**: Adjust rainfall intensity (mm/h), deluge duration (hours), global warming thermal increase (+°C), sea level surge (+m), and canopy cover changes.
-* **Active Municipal Engineering Interventions**: Test real structural countermeasures:
-  * *Canal Deep Desilting* (+35% drain capacity → **-18% flood risk**)
-  * *Mobile Heavy Sump Pumps* (150 MLD strategic deployment → **-12% flood risk**)
-  * *Pallikaranai Sponge Wetland Restoration* (Natural retention → **-15% flood risk & -0.4°C cooling**)
-  * *Tidal Backflow Surge Gates* (Ennore/Marina barrage activation → **-22% storm surge**)
-* **Live Averted Loss & ROI Counter**: Real-time calculation of square kilometers protected and monetary damages averted in millions of USD (e.g., `+$235M USD Averted`).
-
-### 5. AI Climate Analyst Engine — Aether-9 (`AIAnalystPanel.tsx`)
-* **Scientific Natural Language Querying**: Responds to complex urban resilience inquiries (e.g., *"Which Chennai wards have the highest compound flood exposure?"*).
-* **Evidence Citations**: Directly cites data sources (Copernicus ERA5 Reanalysis, IMD Doppler Radar, IPCC AR6).
-* **Interactive Map Synchronization**: The AI highlights specific wards and zones on the digital twin map directly from chat responses.
-* **Executive Briefing Export**: One-click generation of strategic markdown briefings for city officials.
-
-### 6. Emergency Evacuation & Relief Command Network (`EvacuationRoutesModal.tsx`)
-* **Designated Municipal Safe Havens**: Detailed telemetry on regional flood relief hubs (Anna University CEG, Jawaharlal Nehru Stadium, Loyola College, Tambaram Air Force Base, Phoenix High Grounds).
-* **Tactical Resource Tracking**: Real-time tracking of capacity utilization, potable water reserves (days), auxiliary diesel generators, emergency medical personnel, and NDRF motorized rescue boat fleets.
-* **High-Ground Evacuation Corridors**: Mapped elevated road arteries connecting flood sumps (Velachery, Pallikaranai, Perumbakkam) to high-ground sanctuaries.
-
-### 7. Executive Dossier & Global Twin Benchmarking
-* **Executive Dossier (`ExecutiveDossierModal.tsx`)**: Full printable (`window.print()`) municipal briefing document containing ward vulnerability matrices, critical asset exposure tallies, and priority capital intervention recommendations.
-* **Twin-to-Twin Resilience Benchmark (`TwinComparisonModal.tsx`)**: Cross-city comparative diagnostics benchmarking Chennai against global delta megacities (Rotterdam, Singapore, Tokyo, New York, Miami) across composite risk, thermal anomaly, and IPCC vulnerability indices.
+- **Headings**: `Space Grotesk` (Geometric, scientific, commanding)
+- **Body**: `Inter` (High optical clarity for dense dashboards)
+- **Telemetry**: `JetBrains Mono` (Coordinates, radar decibels, latency)
 
 ---
 
 ## ⌨️ Keyboard Shortcuts
 
-| Shortcut | Function |
-| :--- | :--- |
+| Key | Action |
+| :---: | :--- |
 | `1` | Switch to **Planetary 3D Earth** |
 | `2` | Switch to **Digital Twin GIS** (Google Maps 3D) |
 | `3` | Switch to **Climate Intelligence Instruments** |
 | `4` | Switch to **Scenario Simulator & Engineering ROI** |
 | `5` | Switch to **AI Analyst Engine** (Aether-9) |
-| `Ctrl + K` / `Cmd + K` | Open **Global Spatial Search** |
+| `C` | Open **Bay of Bengal Cyclone Radar** |
+| `T` | Open **Historical Satellite Time-Lapse Slider** |
+| `I` | Open **IoT River Gauge & Sluice Gate Network** |
+| `S` | Open **3D Street-Level Inundation Camera** |
+| `E` | Open **Municipal Evacuation & Relief Shelter Command** |
 | `D` | Open **Executive Climate Dossier** (Printable PDF) |
+| `Ctrl + K` / `Cmd + K` | Open **Global Spatial Search** |
 | `?` | Toggle **Keyboard Shortcuts Palette** |
 
 ---
@@ -149,7 +164,7 @@ The platform targets the **Chennai Metropolitan Basin**—one of the world's mos
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/climora.git
+   git clone https://github.com/SSManikandaprabu/climora.git
    cd climora
    ```
 
@@ -169,7 +184,7 @@ The platform targets the **Chennai Metropolitan Basin**—one of the world's mos
    npm run build
    npm run preview
    ```
-   *Compiles clean in under 700ms with optimized code splitting.*
+   *Compiles clean in ~500ms with optimized code splitting.*
 
 ---
 
@@ -178,7 +193,7 @@ The platform targets the **Chennai Metropolitan Basin**—one of the world's mos
 | Sensor / Dataset | Provider | Calibration Cycle | Resolution |
 | :--- | :--- | :--- | :--- |
 | **ERA5 Reanalysis** | ECMWF / Copernicus Climate Change Service | Hourly | 0.25° (~31 km) |
-| **Integrated Multi-satellite Retrievals (IMERG)** | NASA / JAXA Global Precipitation Measurement (GPM) | 30 minutes | 0.1° (~10 km) |
+| **IMERG Satellite Precipitation** | NASA / JAXA Global Precipitation Measurement (GPM) | 30 minutes | 0.1° (~10 km) |
 | **Doppler Weather Radar (DWR)** | India Meteorological Department (IMD) Chennai | 10 minutes | 1.0 km |
 | **Topographic Airborne LiDAR** | Survey of India / Chennai Smart City Mission | Decennial | 0.5m MSL |
 | **Live Surface AWS Telemetry** | Open-Meteo Integrated Stream | 5 minutes | Point AWS |
@@ -189,8 +204,6 @@ The platform targets the **Chennai Metropolitan Basin**—one of the world's mos
 ## 📄 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
----
 
 <div align="center">
   <sub>Engineered with precision for planetary resilience. ClimateTwin X © 2026.</sub>
