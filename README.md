@@ -148,6 +148,8 @@ The platform targets the **Chennai Metropolitan Basin**—one of the world's mos
 | `I` | Open **IoT River Gauge & Sluice Gate Network** |
 | `S` | Open **3D Street-Level Inundation Camera** |
 | `E` | Open **Municipal Evacuation & Relief Shelter Command** |
+| `R` | Toggle **Level-4 Multi-Agency Red Alert Protocol** |
+| `P` | Open **Official Incident Situation Report (SITREP PDF)** |
 | `D` | Open **Executive Climate Dossier** (Printable PDF) |
 | `Ctrl + K` / `Cmd + K` | Open **Global Spatial Search** |
 | `?` | Toggle **Keyboard Shortcuts Palette** |

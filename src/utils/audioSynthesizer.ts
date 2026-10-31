@@ -114,6 +114,56 @@ class AudioSynthesizer {
       // Silent fallback
     }
   }
+
+  /** Dual-tone Emergency Warble Siren for Red Alert Protocol */
+  public playEmergencySiren() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sawtooth';
+      // Dual-tone sweeping warble
+      osc.frequency.setValueAtTime(880, now);
+      osc.frequency.linearRampToValueAtTime(587.33, now + 0.25);
+      osc.frequency.linearRampToValueAtTime(880, now + 0.5);
+      osc.frequency.linearRampToValueAtTime(587.33, now + 0.75);
+      osc.frequency.linearRampToValueAtTime(880, now + 1.0);
+
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.linearRampToValueAtTime(0.08, now + 0.9);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 1.1);
+    } catch {
+      // Fallback
+    }
+  }
+
+  /** Text-to-speech synthesized emergency broadcast voice */
+  public speakEmergencyWarning(text: string) {
+    if (this.isMuted) return;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel(); // cancel any active speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.05;
+        utterance.pitch = 0.9;
+        utterance.volume = 0.8;
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        // Fallback
+      }
+    }
+  }
 }
 
 export const soundFx = new AudioSynthesizer();

@@ -9,6 +9,7 @@ import {
   CHENNAI_RELIEF_SHELTERS,
   CHENNAI_EVACUATION_ROUTES_GEOJSON,
 } from '../../data/chennaiGeoData';
+import { getCityGeoBundle } from '../../data/multiCityGeoData';
 import { LayerController, MapBaseStyle } from './LayerController';
 import { NeighbourhoodModal } from './NeighbourhoodModal';
 import { EvacuationRoutesModal } from '../common/EvacuationRoutesModal';
@@ -46,9 +47,12 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
 
+  const geoBundle = getCityGeoBundle(city.id);
+  const neighbourhoods = geoBundle.neighbourhoods;
+
   const [selectedNeighbourhood, setSelectedNeighbourhood] = useState<NeighbourhoodData | null>(
     highlightNeighbourhoodId
-      ? CHENNAI_NEIGHBOURHOODS.find((n) => n.id === highlightNeighbourhoodId) || null
+      ? neighbourhoods.find((n) => n.id === highlightNeighbourhoodId) || null
       : null
   );
   const [showLayerController, setShowLayerController] = useState<boolean>(false);
@@ -207,16 +211,16 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
 
   const setupMapLayers = (map: maplibregl.Map) => {
     // 1. ADD HYDROGRAPHIC NETWORKS
-    if (!map.getSource('chennai-hydro')) {
-      map.addSource('chennai-hydro', {
+    if (!map.getSource('city-hydro')) {
+      map.addSource('city-hydro', {
         type: 'geojson',
-        data: CHENNAI_HYDRO_GEOJSON as any,
+        data: geoBundle.hydroGeoJSON as any,
       });
 
       map.addLayer({
         id: 'hydro-fill',
         type: 'fill',
-        source: 'chennai-hydro',
+        source: 'city-hydro',
         filter: ['==', '$type', 'Polygon'],
         paint: {
           'fill-color': '#0284c7',
@@ -227,7 +231,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
       map.addLayer({
         id: 'hydro-lines-glow',
         type: 'line',
-        source: 'chennai-hydro',
+        source: 'city-hydro',
         filter: ['==', '$type', 'LineString'],
         paint: {
           'line-color': '#38bdf8',
@@ -239,7 +243,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
       map.addLayer({
         id: 'hydro-lines-core',
         type: 'line',
-        source: 'chennai-hydro',
+        source: 'city-hydro',
         filter: ['==', '$type', 'LineString'],
         paint: {
           'line-color': '#bae6fd',
@@ -249,16 +253,16 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
     }
 
     // 2. ADD REALISTIC 3D EXTRUDED BUILDINGS (rising directly from Google Maps coordinates)
-    if (!map.getSource('chennai-3d-buildings')) {
-      map.addSource('chennai-3d-buildings', {
+    if (!map.getSource('city-3d-buildings')) {
+      map.addSource('city-3d-buildings', {
         type: 'geojson',
-        data: CHENNAI_3D_BUILDINGS_GEOJSON as any,
+        data: geoBundle.landmarks3D as any,
       });
 
       map.addLayer({
         id: 'buildings-3d-extrusion',
         type: 'fill-extrusion',
-        source: 'chennai-3d-buildings',
+        source: 'city-3d-buildings',
         paint: {
           'fill-extrusion-color': ['get', 'color'],
           'fill-extrusion-height': ['get', 'height'],
@@ -269,12 +273,12 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
     }
 
     // 3. ADD FLOOD INUNDATION DELUGE POLYGONS
-    if (!map.getSource('chennai-flood-zones')) {
-      map.addSource('chennai-flood-zones', {
+    if (!map.getSource('city-flood-zones')) {
+      map.addSource('city-flood-zones', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
-          features: CHENNAI_NEIGHBOURHOODS.map((n) => ({
+          features: neighbourhoods.map((n) => ({
             type: 'Feature',
             properties: {
               id: n.id,
@@ -300,7 +304,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
       map.addLayer({
         id: 'flood-fill-layer',
         type: 'fill',
-        source: 'chennai-flood-zones',
+        source: 'city-flood-zones',
         paint: {
           'fill-color': [
             'interpolate',
@@ -317,7 +321,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
       map.addLayer({
         id: 'flood-outline-layer',
         type: 'line',
-        source: 'chennai-flood-zones',
+        source: 'city-flood-zones',
         paint: {
           'line-color': '#22d3ee',
           'line-width': 2,
@@ -362,7 +366,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
       });
 
       // Markers for Neighbourhoods
-      CHENNAI_NEIGHBOURHOODS.forEach((n) => {
+      neighbourhoods.forEach((n) => {
         const el = document.createElement('div');
         el.className = 'group cursor-pointer select-none';
         const isEmergency = n.alertStatus === 'Emergency';
@@ -396,23 +400,25 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
         markersRef.current.push(marker);
       });
 
-      // Markers for Sensor Telemetry Nodes
-      SENSOR_TELEMETRY_NODES.forEach((sensor) => {
-        const sensorEl = document.createElement('div');
-        sensorEl.className = 'cursor-pointer';
-        sensorEl.innerHTML = `
-          <div class="relative flex items-center justify-center" title="${sensor.name}">
-            <div class="w-3.5 h-3.5 rounded-full bg-emerald-400 border border-white shadow-[0_0_10px_#10b981] animate-pulse"></div>
-            <div class="absolute -top-5 font-mono text-[9px] text-emerald-300 bg-slate-950/90 border border-emerald-500/30 px-1.5 py-0.5 rounded whitespace-nowrap">
-              ${sensor.reading} ${sensor.unit.split(' ')[0]}
+      // Markers for Sensor Telemetry Nodes (Chennai array)
+      if (city.id === 'chennai') {
+        SENSOR_TELEMETRY_NODES.forEach((sensor) => {
+          const sensorEl = document.createElement('div');
+          sensorEl.className = 'cursor-pointer';
+          sensorEl.innerHTML = `
+            <div class="relative flex items-center justify-center" title="${sensor.name}">
+              <div class="w-3.5 h-3.5 rounded-full bg-emerald-400 border border-white shadow-[0_0_10px_#10b981] animate-pulse"></div>
+              <div class="absolute -top-5 font-mono text-[9px] text-emerald-300 bg-slate-950/90 border border-emerald-500/30 px-1.5 py-0.5 rounded whitespace-nowrap">
+                ${sensor.reading} ${sensor.unit.split(' ')[0]}
+              </div>
             </div>
-          </div>
-        `;
-        const marker = new maplibregl.Marker({ element: sensorEl })
-          .setLngLat([sensor.lng, sensor.lat])
-          .addTo(map);
-        markersRef.current.push(marker);
-      });
+          `;
+          const marker = new maplibregl.Marker({ element: sensorEl })
+            .setLngLat([sensor.lng, sensor.lat])
+            .addTo(map);
+          markersRef.current.push(marker);
+        });
+      }
 
       return () => {
         markersRef.current.forEach((m) => m.remove());
@@ -436,7 +442,7 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
 
   useEffect(() => {
     if (!highlightNeighbourhoodId || !mapInstanceRef.current) return;
-    const found = CHENNAI_NEIGHBOURHOODS.find((n) => n.id === highlightNeighbourhoodId);
+    const found = neighbourhoods.find((n) => n.id === highlightNeighbourhoodId);
     if (found) {
       setSelectedNeighbourhood(found);
       mapInstanceRef.current.flyTo({ center: [found.lng, found.lat], zoom: 14.2, pitch: 58, duration: 1500 });

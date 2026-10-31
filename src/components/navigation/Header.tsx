@@ -15,6 +15,9 @@ interface HeaderProps {
   onOpenDossier: () => void;
   onOpenComparison: () => void;
   onOpenCyclone?: () => void;
+  isRedAlert?: boolean;
+  onToggleRedAlert?: () => void;
+  onOpenIncidentReport?: () => void;
   liveWeather?: LiveWeatherData | null;
   isLiveLoading?: boolean;
   onRefreshWeather?: () => void;
@@ -32,6 +35,9 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenDossier,
   onOpenComparison,
   onOpenCyclone,
+  isRedAlert = false,
+  onToggleRedAlert,
+  onOpenIncidentReport,
   liveWeather,
   isLiveLoading = false,
   onRefreshWeather,
@@ -186,11 +192,44 @@ export const Header: React.FC<HeaderProps> = ({
               soundFx.playRadarPing();
               onOpenCyclone();
             }}
-            title="Bay of Bengal Cyclone Trajectory & Wind Radii Radar (Michaung-9)"
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-red-950/60 border border-red-500/50 text-red-300 font-mono text-xs hover:bg-red-900/50 hover:border-red-400 transition-all flex-shrink-0 shadow-[0_0_12px_rgba(239,68,68,0.2)] animate-pulse"
+            title="Bay of Bengal Cyclone Trajectory & Wind Radii Radar (Michaung-9) (C)"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-red-950/60 border border-red-500/50 text-red-300 font-mono text-xs hover:bg-red-900/50 hover:border-red-400 transition-all flex-shrink-0 shadow-[0_0_12px_rgba(239,68,68,0.2)]"
           >
             <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
             <span className="font-bold">Cyclone Radar</span>
+          </button>
+        )}
+
+        {/* Level-4 Red Alert Protocol Button */}
+        {onToggleRedAlert && (
+          <button
+            onClick={() => {
+              onToggleRedAlert();
+            }}
+            title="Toggle Level-4 Multi-Agency Red Alert Protocol (R)"
+            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all flex-shrink-0 shadow-lg ${
+              isRedAlert
+                ? 'bg-red-600 text-white border border-red-300 animate-bounce shadow-[0_0_15px_rgba(239,68,68,0.8)]'
+                : 'bg-red-950/40 text-red-400 hover:bg-red-900/50 hover:text-red-200 border border-red-500/30'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${isRedAlert ? 'bg-white' : 'bg-red-500 animate-ping'}`} />
+            <span>{isRedAlert ? 'STAND DOWN' : 'RED ALERT (R)'}</span>
+          </button>
+        )}
+
+        {/* Official Incident Situation Report (SITREP) */}
+        {onOpenIncidentReport && (
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              onOpenIncidentReport();
+            }}
+            title="Open Printable Multi-Agency Incident Situation Report (P)"
+            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-600 text-xs font-mono font-semibold transition-all shadow-sm flex-shrink-0 whitespace-nowrap"
+          >
+            <FileText className="w-3.5 h-3.5 text-cyan-400" />
+            <span>SITREP (P)</span>
           </button>
         )}
 

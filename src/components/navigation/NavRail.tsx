@@ -13,6 +13,8 @@ import {
   Radio,
   Eye,
   Navigation,
+  AlertOctagon,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { soundFx } from '../../utils/audioSynthesizer';
 
@@ -26,6 +28,9 @@ interface NavRailProps {
   onOpenIoT?: () => void;
   onOpenStreetView?: () => void;
   onOpenEvacuation?: () => void;
+  isRedAlert?: boolean;
+  onToggleRedAlert?: () => void;
+  onOpenIncidentReport?: () => void;
 }
 
 export const NavRail: React.FC<NavRailProps> = ({
@@ -38,6 +43,9 @@ export const NavRail: React.FC<NavRailProps> = ({
   onOpenIoT,
   onOpenStreetView,
   onOpenEvacuation,
+  isRedAlert = false,
+  onToggleRedAlert,
+  onOpenIncidentReport,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -249,6 +257,47 @@ export const NavRail: React.FC<NavRailProps> = ({
               <div className="text-left overflow-hidden whitespace-nowrap font-mono text-xs">
                 <span className="text-white block font-medium">Twin Benchmark</span>
                 <span className="text-[9px] text-cyan-400/80">Compare Port Megacities</span>
+              </div>
+            )}
+          </button>
+        )}
+
+        {onToggleRedAlert && (
+          <button
+            onClick={() => {
+              onToggleRedAlert();
+            }}
+            className={`w-full flex items-center gap-3.5 p-2.5 rounded-xl transition-all group relative ${
+              isRedAlert
+                ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.8)] animate-pulse'
+                : 'text-red-400 hover:text-red-200 hover:bg-red-950/60'
+            }`}
+            title="Toggle Level-4 Red Alert Protocol (R)"
+          >
+            <AlertOctagon className="w-5 h-5 flex-shrink-0" />
+            {isExpanded && (
+              <div className="text-left overflow-hidden whitespace-nowrap font-mono text-xs">
+                <span className="text-white block font-bold">{isRedAlert ? 'Stand Down' : 'Red Alert (R)'}</span>
+                <span className="text-[9px] text-red-300">Level-4 Emergency</span>
+              </div>
+            )}
+          </button>
+        )}
+
+        {onOpenIncidentReport && (
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              onOpenIncidentReport();
+            }}
+            className="w-full flex items-center gap-3.5 p-2.5 rounded-xl text-slate-400 hover:text-cyan-300 hover:bg-slate-800/60 transition-all group relative"
+            title="Multi-Agency Incident Situation Report (P)"
+          >
+            <FileSpreadsheet className="w-5 h-5 flex-shrink-0 text-cyan-400" />
+            {isExpanded && (
+              <div className="text-left overflow-hidden whitespace-nowrap font-mono text-xs">
+                <span className="text-white block font-medium">Incident SITREP</span>
+                <span className="text-[9px] text-cyan-400/80">Printable Official PDF</span>
               </div>
             )}
           </button>

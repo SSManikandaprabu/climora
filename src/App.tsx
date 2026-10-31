@@ -17,6 +17,8 @@ import { SatelliteTimeLapseModal } from './components/common/SatelliteTimeLapseM
 import { IoTSensorNetworkModal } from './components/common/IoTSensorNetworkModal';
 import { StreetInundationViewer } from './components/common/StreetInundationViewer';
 import { EvacuationRoutesModal } from './components/common/EvacuationRoutesModal';
+import { RedAlertBanner } from './components/common/RedAlertBanner';
+import { IncidentReportModal } from './components/common/IncidentReportModal';
 import { CinematicIntro } from './components/intro/CinematicIntro';
 import { EarthGlobe } from './components/3d/EarthGlobe';
 import { FallbackMap2D } from './components/3d/FallbackMap2D';
@@ -59,6 +61,8 @@ export const App: React.FC = () => {
   const [isStreetViewOpen, setIsStreetViewOpen] = useState(false);
   const [isEvacuationOpen, setIsEvacuationOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isRedAlert, setIsRedAlert] = useState(false);
+  const [isIncidentReportOpen, setIsIncidentReportOpen] = useState(false);
 
   // Live telemetry stream state (Open-Meteo)
   const [liveWeather, setLiveWeather] = useState<LiveWeatherData | null>(null);
@@ -122,6 +126,12 @@ export const App: React.FC = () => {
       } else if (e.key.toLowerCase() === 'e') {
         soundFx.playClick();
         setIsEvacuationOpen(true);
+      } else if (e.key.toLowerCase() === 'r') {
+        soundFx.playClick();
+        setIsRedAlert((prev) => !prev);
+      } else if (e.key.toLowerCase() === 'p') {
+        soundFx.playClick();
+        setIsIncidentReportOpen(true);
       } else if (e.key === '?') {
         soundFx.playClick();
         setIsShortcutsOpen((prev) => !prev);
@@ -155,6 +165,15 @@ export const App: React.FC = () => {
         <CinematicIntro onComplete={() => setShowIntro(false)} />
       )}
 
+      {/* MULTI-AGENCY LEVEL-4 RED ALERT BANNER & STROBE */}
+      <RedAlertBanner
+        isActive={isRedAlert}
+        onDeactivate={() => setIsRedAlert(false)}
+        onOpenEvacuation={() => setIsEvacuationOpen(true)}
+        onOpenCyclone={() => setIsCycloneOpen(true)}
+        cityName={selectedCity.name}
+      />
+
       {/* Top Global Command Centre Header */}
       <Header
         selectedCity={selectedCity}
@@ -166,6 +185,9 @@ export const App: React.FC = () => {
         onOpenDossier={() => setIsDossierOpen(true)}
         onOpenComparison={() => setIsComparisonOpen(true)}
         onOpenCyclone={() => setIsCycloneOpen(true)}
+        isRedAlert={isRedAlert}
+        onToggleRedAlert={() => setIsRedAlert((prev) => !prev)}
+        onOpenIncidentReport={() => setIsIncidentReportOpen(true)}
         liveWeather={liveWeather}
         isLiveLoading={isLiveLoading}
         onRefreshWeather={() => loadLiveWeather(selectedCity)}
@@ -183,6 +205,9 @@ export const App: React.FC = () => {
         onOpenIoT={() => setIsIoTOpen(true)}
         onOpenStreetView={() => setIsStreetViewOpen(true)}
         onOpenEvacuation={() => setIsEvacuationOpen(true)}
+        isRedAlert={isRedAlert}
+        onToggleRedAlert={() => setIsRedAlert((prev) => !prev)}
+        onOpenIncidentReport={() => setIsIncidentReportOpen(true)}
       />
 
       {/* Main Spatial Command Centre Workspace */}
@@ -447,6 +472,13 @@ export const App: React.FC = () => {
           setSelectedCity({ ...selectedCity, lng: shelter.lng, lat: shelter.lat });
           setViewMode('twin');
         }}
+      />
+
+      {/* OFFICIAL INCIDENT SITUATION REPORT (SITREP) */}
+      <IncidentReportModal
+        isOpen={isIncidentReportOpen}
+        onClose={() => setIsIncidentReportOpen(false)}
+        city={selectedCity}
       />
     </div>
   );
