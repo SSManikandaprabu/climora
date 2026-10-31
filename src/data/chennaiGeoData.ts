@@ -1,4 +1,4 @@
-import { NeighbourhoodData } from '../types/climate';
+import type { NeighbourhoodData } from '../types/climate';
 
 export const CHENNAI_NEIGHBOURHOODS: NeighbourhoodData[] = [
   {
@@ -12,7 +12,7 @@ export const CHENNAI_NEIGHBOURHOODS: NeighbourhoodData[] = [
     vegetationIndex: 0.18,
     soilSaturation: 91,
     populationExposed: '315,000 residents',
-    criticalAssets: ['Velachery MRTS Station', 'Vijayanagar Junction', 'Grand Square Drainage Corridor', 'South Substation'],
+    criticalAssets: ['Velachery MRTS Station', 'Vijayanagar Junction Underpass', 'Grand Square Drainage Basin', 'South Grid Substation'],
     drainageCapacity: 'Critical Deficit',
     alertStatus: 'Emergency',
     lastUpdated: '12 seconds ago',
@@ -29,11 +29,11 @@ export const CHENNAI_NEIGHBOURHOODS: NeighbourhoodData[] = [
     vegetationIndex: 0.62,
     soilSaturation: 98,
     populationExposed: '140,000 surrounding residents',
-    criticalAssets: ['Ecological Wetland Sump', 'Radial Road Flyover', 'Pallikaranai Wind Hydrology Gauge'],
+    criticalAssets: ['Ecological Wetland Sump', 'Radial Road Flyover', 'Pallikaranai Wind Hydrology Gauge', 'Okkiyam Madavu Outfall'],
     drainageCapacity: 'Critical Deficit',
     alertStatus: 'Emergency',
     lastUpdated: '18 seconds ago',
-    historicalFloods: ['Natural floodplain shrunk from 50 sq km to under 4.3 sq km due to urbanization. Severe basin backflow.']
+    historicalFloods: ['Natural wetland shrunk from 50 sq km to under 4.3 sq km. Severe basin backflow during monsoon.']
   },
   {
     id: 'madipakkam',
@@ -63,7 +63,7 @@ export const CHENNAI_NEIGHBOURHOODS: NeighbourhoodData[] = [
     vegetationIndex: 0.45,
     soilSaturation: 89,
     populationExposed: '185,000 riparian population',
-    criticalAssets: ['Adyar Tholkappia Poonga Eco Park', 'Elphinstone Bridge', 'Kotturpuram Sluice Gates'],
+    criticalAssets: ['Adyar Tholkappia Poonga Eco Park', 'Elphinstone Bridge', 'Kotturpuram Sluice Gates', 'Saidapet Causeway'],
     drainageCapacity: 'Sub-optimal',
     alertStatus: 'Warning',
     lastUpdated: '22 seconds ago',
@@ -71,7 +71,7 @@ export const CHENNAI_NEIGHBOURHOODS: NeighbourhoodData[] = [
   },
   {
     id: 'tnagar',
-    name: 'T. Nagar (Thyagaraya Nagar)',
+    name: 'T. Nagar (Commercial Core)',
     lat: 13.0418,
     lng: 80.2341,
     elevation: 8.5,
@@ -97,7 +97,7 @@ export const CHENNAI_NEIGHBOURHOODS: NeighbourhoodData[] = [
     vegetationIndex: 0.31,
     soilSaturation: 94,
     populationExposed: '260,000 residents',
-    criticalAssets: ['OMR Tech Corridor Infrastructure', 'Perumbakkam Wetland Complex', 'ELCOT IT Park'],
+    criticalAssets: ['OMR Tech Corridor Towers', 'Perumbakkam Wetland Complex', 'ELCOT IT SEZ Park'],
     drainageCapacity: 'Critical Deficit',
     alertStatus: 'Emergency',
     lastUpdated: '15 seconds ago',
@@ -226,8 +226,157 @@ export const SENSOR_TELEMETRY_NODES: SensorTelemetry[] = [
   }
 ];
 
-export const CHENNAI_WATERWAYS = [
-  { name: 'Adyar River', path: [[12.98, 80.05], [13.00, 80.15], [13.015, 80.23], [13.007, 80.26]] },
-  { name: 'Cooum River', path: [[13.07, 80.14], [13.075, 80.21], [13.07, 80.26], [13.065, 80.29]] },
-  { name: 'Buckingham Canal', path: [[13.25, 80.32], [13.10, 80.29], [13.00, 80.25], [12.85, 80.22]] }
-];
+// REAL GEOMETRIES: Actual Chennai Hydrographic Networks (Adyar, Cooum, Buckingham Canal, Pallikaranai)
+export const CHENNAI_HYDRO_GEOJSON = {
+  type: 'FeatureCollection',
+  features: [
+    // Adyar River Path
+    {
+      type: 'Feature',
+      properties: { name: 'Adyar River Basin', flowRate: '18,400 cusecs', risk: 'HIGH' },
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [80.050, 12.985],
+          [80.110, 13.002],
+          [80.155, 13.011],
+          [80.200, 13.014],
+          [80.235, 13.021],
+          [80.252, 13.012],
+          [80.274, 13.007] // River mouth into Bay of Bengal
+        ]
+      }
+    },
+    // Cooum River Path
+    {
+      type: 'Feature',
+      properties: { name: 'Cooum River Central Channel', flowRate: '12,200 cusecs', risk: 'CRITICAL' },
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [80.130, 13.072],
+          [80.180, 13.076],
+          [80.220, 13.075],
+          [80.250, 13.069],
+          [80.278, 13.068],
+          [80.288, 13.064] // Marina outfall
+        ]
+      }
+    },
+    // Buckingham Canal Corridor
+    {
+      type: 'Feature',
+      properties: { name: 'Buckingham Canal Drainage Artery', flowRate: '4,500 cusecs', risk: 'CHOKED' },
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [80.320, 13.220],
+          [80.300, 13.150],
+          [80.288, 13.080],
+          [80.270, 13.020],
+          [80.250, 12.960],
+          [80.238, 12.900],
+          [80.220, 12.830]
+        ]
+      }
+    },
+    // Pallikaranai Marsh Wetland Sump Polygon
+    {
+      type: 'Feature',
+      properties: { name: 'Pallikaranai Retention Basin', saturation: 98, depth: 2.1 },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.200, 12.915],
+          [80.228, 12.918],
+          [80.235, 12.945],
+          [80.222, 12.960],
+          [80.198, 12.948],
+          [80.200, 12.915]
+        ]]
+      }
+    },
+    // Velachery Flood Inundation Basin Polygon
+    {
+      type: 'Feature',
+      properties: { name: 'Velachery Lowland Sump', saturation: 94, depth: 1.8 },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.205, 12.968],
+          [80.232, 12.970],
+          [80.238, 12.992],
+          [80.218, 12.998],
+          [80.202, 12.985],
+          [80.205, 12.968]
+        ]]
+      }
+    },
+    // South OMR Tech Corridor Submergence Polygon
+    {
+      type: 'Feature',
+      properties: { name: 'Perumbakkam IT Zone Surcharge', saturation: 92, depth: 1.5 },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.195, 12.885],
+          [80.225, 12.888],
+          [80.230, 12.912],
+          [80.200, 12.910],
+          [80.195, 12.885]
+        ]]
+      }
+    }
+  ]
+};
+
+// 3D URBAN BUILDINGS (T. Nagar commercial clusters, OMR IT parks, Guindy industrial blocks)
+export const CHENNAI_3D_BUILDINGS_GEOJSON = {
+  type: 'FeatureCollection',
+  features: [
+    // T. Nagar High-Rise Commercial Hub
+    {
+      type: 'Feature',
+      properties: { name: 'T. Nagar Commercial Towers', height: 48, base_height: 0, color: '#38bdf8' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.230, 13.038], [80.240, 13.038], [80.240, 13.046], [80.230, 13.046], [80.230, 13.038]
+        ]]
+      }
+    },
+    // OMR IT Towers (Sholinganallur & Perumbakkam)
+    {
+      type: 'Feature',
+      properties: { name: 'OMR Cyber Park Towers', height: 72, base_height: 0, color: '#22d3ee' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.224, 12.900], [80.236, 12.900], [80.236, 12.912], [80.224, 12.912], [80.224, 12.900]
+        ]]
+      }
+    },
+    // Guindy Industrial SEZ
+    {
+      type: 'Feature',
+      properties: { name: 'Guindy Industrial SEZ', height: 35, base_height: 0, color: '#818cf8' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.208, 13.004], [80.220, 13.004], [80.220, 13.016], [80.208, 13.016], [80.208, 13.004]
+        ]]
+      }
+    },
+    // Velachery MRTS & Transit Hub
+    {
+      type: 'Feature',
+      properties: { name: 'Velachery MRTS Terminal', height: 28, base_height: 0, color: '#f43f5e' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [80.214, 12.978], [80.224, 12.978], [80.224, 12.986], [80.214, 12.986], [80.214, 12.978]
+        ]]
+      }
+    }
+  ]
+};
