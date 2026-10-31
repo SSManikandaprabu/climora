@@ -19,6 +19,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   selectedCity,
   onSelectCity,
+  viewMode,
   onChangeViewMode,
   onOpenSearch,
   onToggleNotifications,
@@ -74,8 +75,13 @@ export const Header: React.FC<HeaderProps> = ({
                 Global Intelligence
               </span>
             </div>
-            <div className="text-[10px] text-slate-400 font-mono hidden md:block">
-              See the Future of Your City
+            <div className="flex items-center gap-2">
+              <div className="text-[10px] text-slate-400 font-mono hidden md:block">
+                See the Future of Your City
+              </div>
+              <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest hidden xl:inline">
+                MODE: {viewMode.toUpperCase()}
+              </span>
             </div>
           </div>
         </button>

@@ -4,15 +4,13 @@ import { Thermometer, TrendingUp, ShieldCheck } from 'lucide-react';
 interface TemperatureGaugeProps {
   currentTemp: number;
   tempAnomaly: number;
-  city: string;
+  city?: string;
 }
 
 export const TemperatureGauge: React.FC<TemperatureGaugeProps> = ({
   currentTemp,
   tempAnomaly,
-  city,
 }) => {
-  // Mini diurnal hourly data
   const hourlyData = [
     { hour: '00:00', temp: 28.1 },
     { hour: '04:00', temp: 27.4 },

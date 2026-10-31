@@ -1,6 +1,6 @@
 import React from 'react';
 import type { MapLayerState } from '../../types/climate';
-import { Layers, Droplets, Flame, CloudRain, Trees, Waves, Mountain, Radio, Sliders } from 'lucide-react';
+import { Layers, Droplets, Flame, CloudRain, Trees, Waves, Radio, Sliders } from 'lucide-react';
 
 export type MapBaseStyle = 'google-hybrid' | 'google-satellite' | 'google-roadmap' | 'google-terrain' | 'dark';
 

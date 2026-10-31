@@ -1,5 +1,5 @@
 import React from 'react';
-import { Droplets, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Droplets, AlertTriangle } from 'lucide-react';
 
 interface FloodRiskGaugeProps {
   riskScore: number;

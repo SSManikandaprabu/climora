@@ -1,11 +1,11 @@
 import React from 'react';
-import { Flame, Sun, AlertCircle } from 'lucide-react';
+import { Flame, AlertCircle } from 'lucide-react';
 
 interface HeatExposureGaugeProps {
-  city: string;
+  city?: string;
 }
 
-export const HeatExposureGauge: React.FC<HeatExposureGaugeProps> = ({ city }) => {
+export const HeatExposureGauge: React.FC<HeatExposureGaugeProps> = () => {
   return (
     <div className="glass-panel p-4 rounded-xl border border-amber-500/20 text-white shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition-all">
       {/* Header */}

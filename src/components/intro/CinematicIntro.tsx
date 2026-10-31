@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FastForward, Radio, ShieldCheck } from 'lucide-react';
+import { FastForward, Radio } from 'lucide-react';
 
 interface CinematicIntroProps {
   onComplete: () => void;

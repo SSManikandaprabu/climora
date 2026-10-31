@@ -1,14 +1,13 @@
 import React from 'react';
-import { CloudRain, Radio, ShieldCheck } from 'lucide-react';
+import { CloudRain, Radio } from 'lucide-react';
 
 interface RainfallIntensityProps {
   precipitationRate: number;
-  city: string;
+  city?: string;
 }
 
 export const RainfallIntensity: React.FC<RainfallIntensityProps> = ({
   precipitationRate,
-  city,
 }) => {
   return (
     <div className="glass-panel p-4 rounded-xl border border-blue-500/20 text-white shadow-xl relative overflow-hidden group hover:border-blue-500/40 transition-all">

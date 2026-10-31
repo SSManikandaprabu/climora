@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, X, ArrowRight, ShieldAlert, Cpu } from 'lucide-react';
-import { CHENNAI_NEIGHBOURHOODS, SENSOR_TELEMETRY_NODES } from '../../data/chennaiGeoData';
+import { Search, X, ArrowRight } from 'lucide-react';
+import { CHENNAI_NEIGHBOURHOODS } from '../../data/chennaiGeoData';
 import { GLOBAL_CITIES } from '../../data/citiesData';
-import { CityData, NeighbourhoodData } from '../../types/climate';
+import type { CityData, NeighbourhoodData } from '../../types/climate';
 
 interface GlobalSearchModalProps {
   isOpen: boolean;
@@ -21,10 +21,6 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        // Toggle or open
-      }
       if (e.key === 'Escape' && isOpen) {
         onClose();
       }

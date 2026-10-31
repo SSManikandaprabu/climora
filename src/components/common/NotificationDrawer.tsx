@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, AlertTriangle, Droplets, Flame, Radio, CheckCircle2 } from 'lucide-react';
+import { X, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 interface NotificationDrawerProps {
   isOpen: boolean;

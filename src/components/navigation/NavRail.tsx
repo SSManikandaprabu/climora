@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ViewMode } from '../../types/climate';
-import { Globe, Map, BarChart3, Cpu, Sparkles, ChevronRight, HelpCircle, Database } from 'lucide-react';
+import type { ViewMode } from '../../types/climate';
+import { Globe, Map, BarChart3, Cpu, Sparkles, Database } from 'lucide-react';
 
 interface NavRailProps {
   currentMode: ViewMode;

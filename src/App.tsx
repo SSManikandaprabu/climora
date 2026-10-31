@@ -10,6 +10,7 @@ import { NavRail } from './components/navigation/NavRail';
 import { GlobalSearchModal } from './components/navigation/GlobalSearchModal';
 import { NotificationDrawer } from './components/common/NotificationDrawer';
 import { ExecutiveDossierModal } from './components/common/ExecutiveDossierModal';
+import { ShortcutsModal } from './components/common/ShortcutsModal';
 import { CinematicIntro } from './components/intro/CinematicIntro';
 import { EarthGlobe } from './components/3d/EarthGlobe';
 import { FallbackMap2D } from './components/3d/FallbackMap2D';
@@ -25,7 +26,7 @@ import { AIAnalystPanel } from './components/ai/AIAnalystPanel';
 import { ClimateTimeline } from './components/timeline/ClimateTimeline';
 import { DataSourceBadge } from './components/intelligence/DataSourceBadge';
 
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, HelpCircle } from 'lucide-react';
 
 export const App: React.FC = () => {
   // App state
@@ -44,28 +45,53 @@ export const App: React.FC = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isDataSourcesOpen, setIsDataSourcesOpen] = useState(false);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
-  // Keyboard shortcut for Cmd/Ctrl+K search
+  // Keyboard shortcut listeners (Cmd/Ctrl+K, 1-5, D, ?)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts if user is typing in an input
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
+        return;
+      }
+
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         soundFx.playClick();
         setIsSearchOpen((prev) => !prev);
+      } else if (e.key === '1') {
+        soundFx.playClick();
+        setViewMode('globe');
+      } else if (e.key === '2') {
+        soundFx.playClick();
+        setViewMode('twin');
+      } else if (e.key === '3') {
+        soundFx.playClick();
+        setViewMode('analytics');
+      } else if (e.key === '4') {
+        soundFx.playClick();
+        setViewMode('simulator');
+      } else if (e.key === '5') {
+        soundFx.playClick();
+        setViewMode('ai');
+      } else if (e.key.toLowerCase() === 'd') {
+        soundFx.playClick();
+        setIsDossierOpen(true);
+      } else if (e.key === '?') {
+        soundFx.playClick();
+        setIsShortcutsOpen((prev) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Handler to transition from 3D Earth Globe into Digital Twin map
   const handleTransitionToTwin = (city: CityData) => {
     soundFx.playRadarPing();
     setSelectedCity(city);
     setViewMode('twin');
   };
 
-  // Handler for AI Analyst triggering a map highlight
   const handleHighlightFromAI = (neighbourhoodId: string) => {
     soundFx.playRadarPing();
     setHighlightNeighbourhoodId(neighbourhoodId);
@@ -252,11 +278,24 @@ export const App: React.FC = () => {
         </div>
 
         {/* BOTTOM: INTERACTIVE CLIMATE TIMELINE */}
-        <div className="mt-3">
-          <ClimateTimeline
-            currentPoint={selectedTimelinePoint}
-            onSelectPoint={setSelectedTimelinePoint}
-          />
+        <div className="mt-3 flex items-center gap-2">
+          <div className="flex-1">
+            <ClimateTimeline
+              currentPoint={selectedTimelinePoint}
+              onSelectPoint={setSelectedTimelinePoint}
+            />
+          </div>
+          {/* Quick Shortcuts Trigger */}
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setIsShortcutsOpen(true);
+            }}
+            title="Keyboard Shortcuts (?)"
+            className="hidden sm:flex p-3 rounded-2xl glass-panel text-slate-400 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </button>
         </div>
       </main>
 
@@ -291,6 +330,12 @@ export const App: React.FC = () => {
         isOpen={isDossierOpen}
         onClose={() => setIsDossierOpen(false)}
         city={selectedCity}
+      />
+
+      {/* KEYBOARD SHORTCUTS PALETTE */}
+      <ShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
       />
     </div>
   );

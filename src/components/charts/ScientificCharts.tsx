@@ -13,9 +13,8 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { Download, SlidersHorizontal, Calendar, FileText, CheckCircle2 } from 'lucide-react';
+import { Download, SlidersHorizontal, CheckCircle2 } from 'lucide-react';
 
-// Data for historical and projected temperature anomaly
 const TEMP_TRAJECTORY_DATA = [
   { year: '1980', baseline: 28.5, actual: 28.4, ssp126: 28.4, ssp585: 28.4 },
   { year: '1990', baseline: 28.5, actual: 28.7, ssp126: 28.7, ssp585: 28.7 },
@@ -28,7 +27,6 @@ const TEMP_TRAJECTORY_DATA = [
   { year: '2050', baseline: 28.5, actual: null, ssp126: 32.0, ssp585: 34.9 },
 ];
 
-// Inundation and storm comparison data (hourly during peak deluge)
 const STORM_COMPARISON_DATA = [
   { hour: '00h', deluge2015: 18, michaung2023: 12, liveRadar: 6 },
   { hour: '06h', deluge2015: 52, michaung2023: 38, liveRadar: 18 },
@@ -39,7 +37,6 @@ const STORM_COMPARISON_DATA = [
   { hour: '36h', deluge2015: 494, michaung2023: 390, liveRadar: 68 },
 ];
 
-// Flood Inundation Probability by Ward
 const WARD_PROBABILITY_DATA = [
   { ward: 'Velachery', prob: 94, depth: 1.8 },
   { ward: 'Pallikaranai', prob: 96, depth: 2.1 },

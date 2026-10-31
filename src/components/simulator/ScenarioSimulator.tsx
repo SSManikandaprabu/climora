@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Sliders, Cpu, Save, RefreshCw, AlertTriangle, Layers, BarChart3, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { Cpu, Save, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { CLIMATE_SCENARIOS } from '../../data/climateScenarios';
 
 export const ScenarioSimulator: React.FC = () => {
-  // Adjustable scenario parameters
   const [rainfallRate, setRainfallRate] = useState<number>(35); // mm/h
   const [durationHours, setDurationHours] = useState<number>(18); // hours
   const [tempIncrease, setTempIncrease] = useState<number>(2.0); // °C
@@ -13,34 +12,26 @@ export const ScenarioSimulator: React.FC = () => {
   const [simulationMode, setSimulationMode] = useState<'side_by_side' | 'scenario' | 'baseline'>('side_by_side');
   const [savedFeedback, setSavedFeedback] = useState(false);
 
-  // Compute live hydrodynamic and climate impacts based on physical model equations
   const calculatedImpacts = useMemo(() => {
-    const totalRainfall = rainfallRate * durationHours; // in mm
-    // Baseline Chennai metrics
+    const totalRainfall = rainfallRate * durationHours;
     const baselineInundationSqKm = 32.0;
-    const baselinePopAtRisk = 310000;
     const baselineEconLossMillions = 420;
 
-    // Soil absorption threshold: ~100mm before saturation runaway
     const excessRainfall = Math.max(0, totalRainfall - 100);
-    const vegetationBuffer = 1 - (canopyChange * 0.008); // more vegetation reduces runoff
-    const surgeMultiplier = 1 + (seaLevelSurge * 0.45); // tide surge locks gravity outfalls
+    const vegetationBuffer = 1 - (canopyChange * 0.008);
+    const surgeMultiplier = 1 + (seaLevelSurge * 0.45);
 
-    // Inundation area formula
     const inundationArea = Math.min(
       180,
       baselineInundationSqKm + (excessRainfall * 0.28 * vegetationBuffer * surgeMultiplier)
     );
 
-    // Population impacted (density ~8,500/sq km in flood zones)
     const populationExposed = Math.round(inundationArea * 8800);
 
-    // Economic damage in Millions USD
     const economicLoss = Math.round(
       baselineEconLossMillions + (inundationArea * 24.5) + (tempIncrease * 180)
     );
 
-    // Peak Heat Island index
     const peakUHI = 3.6 + (tempIncrease * 0.8) - (canopyChange * 0.04);
 
     return {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Database, ShieldCheck, CheckCircle2, Globe, Cpu } from 'lucide-react';
+import { X, Database, ShieldCheck } from 'lucide-react';
 import { DATA_PROVENANCE } from '../../data/climateScenarios';
 
 interface DataSourceBadgeProps {

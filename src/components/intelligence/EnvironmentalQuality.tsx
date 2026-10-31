@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wind, Compass, Gauge, ShieldCheck } from 'lucide-react';
+import { Wind, ShieldCheck } from 'lucide-react';
 
 interface EnvironmentalQualityProps {
   humidity: number;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { TimelinePoint } from '../../types/climate';
+import type { TimelinePoint } from '../../types/climate';
 import { TIMELINE_POINTS } from '../../data/climateScenarios';
-import { Play, Pause, SkipBack, SkipForward, Clock, Calendar, AlertCircle } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 
 interface ClimateTimelineProps {
   currentPoint: TimelinePoint;

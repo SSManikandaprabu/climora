@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AIMessage } from '../../types/climate';
-import { Sparkles, Send, MapPin, Database, BookOpen, AlertCircle, ArrowRight, Download, Check } from 'lucide-react';
+import type { AIMessage } from '../../types/climate';
+import { Sparkles, Send, MapPin, BookOpen, ArrowRight, Download } from 'lucide-react';
 
 interface AIAnalystPanelProps {
   onHighlightNeighbourhood?: (neighbourhoodId: string) => void;
@@ -14,7 +14,7 @@ const INITIAL_MESSAGES: AIMessage[] = [
     timestamp: '18:42 UTC',
     content: `**ClimateTwin X Scientific Intelligence Engine initialized.**
 
-I am your scientific intelligence analyst connected to the Copernicus ERA5 reanalysis pipeline, IMD S-band radar telemetry, and Chennai LiDAR hydrological digital twin models.
+I am your scientific intelligence analyst connected to the Copernicus ERA5 reanalysis pipeline, IMD S-band radar telemetry, and Chennai LiDAR hydrodynamic digital twin models.
 
 You can interrogate hyper-local flood vulnerability, simulate compound cyclone storm surges, or evaluate 2030–2050 IPCC AR6 climate trajectories.`,
     citations: [
@@ -91,7 +91,6 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({
     setInputText('');
     setIsTyping(true);
 
-    // Simulate analytical synthesis response with real scientific evidence
     setTimeout(() => {
       let replyContent = '';
       let replyCitations: AIMessage['citations'] = [];
@@ -260,7 +259,6 @@ Interrogating the composite ERA5 Reanalysis and Chennai Digital Twin model for *
                     : 'glass-panel-elevated border border-cyan-500/20 text-slate-200 rounded-tl-none shadow-xl'
                 }`}
               >
-                {/* Markdown-style content display */}
                 <div className="space-y-2 whitespace-pre-line">
                   {m.content}
                 </div>

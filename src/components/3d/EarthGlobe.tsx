@@ -4,7 +4,7 @@ import type { CityData } from '../../types/climate';
 import { GLOBAL_CITIES } from '../../data/citiesData';
 import { createEarthTextures } from './earthTextures';
 import { soundFx } from '../../utils/audioSynthesizer';
-import { RotateCw, ZoomIn, ZoomOut, Eye, Sparkles, Navigation, Layers, Compass, Radio, Satellite, ShieldCheck } from 'lucide-react';
+import { RotateCw, ZoomIn, ZoomOut, Eye, Sparkles, Navigation, Layers, Compass, Satellite } from 'lucide-react';
 
 interface EarthGlobeProps {
   selectedCity: CityData;

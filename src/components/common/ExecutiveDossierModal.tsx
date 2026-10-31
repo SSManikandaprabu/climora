@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Printer, Download, ShieldCheck, CheckCircle2, AlertTriangle, FileText, Globe } from 'lucide-react';
+import { X, Printer, ShieldCheck, FileText } from 'lucide-react';
 import type { CityData } from '../../types/climate';
 import { CHENNAI_NEIGHBOURHOODS } from '../../data/chennaiGeoData';
 
