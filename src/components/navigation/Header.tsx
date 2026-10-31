@@ -3,7 +3,7 @@ import type { CityData, ViewMode } from '../../types/climate';
 import { GLOBAL_CITIES } from '../../data/citiesData';
 import { soundFx } from '../../utils/audioSynthesizer';
 import type { LiveWeatherData } from '../../utils/weatherApi';
-import { Search, Bell, Radio, MapPin, RefreshCw, Volume2, VolumeX, FileText, GitCompare, Activity } from 'lucide-react';
+import { Search, Bell, Radio, MapPin, RefreshCw, Volume2, VolumeX, FileText, GitCompare, Activity, ShieldAlert } from 'lucide-react';
 
 interface HeaderProps {
   selectedCity: CityData;
@@ -14,6 +14,7 @@ interface HeaderProps {
   onToggleNotifications: () => void;
   onOpenDossier: () => void;
   onOpenComparison: () => void;
+  onOpenCyclone?: () => void;
   liveWeather?: LiveWeatherData | null;
   isLiveLoading?: boolean;
   onRefreshWeather?: () => void;
@@ -30,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleNotifications,
   onOpenDossier,
   onOpenComparison,
+  onOpenCyclone,
   liveWeather,
   isLiveLoading = false,
   onRefreshWeather,
@@ -175,6 +177,21 @@ export const Header: React.FC<HeaderProps> = ({
             <Activity className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
             <span className="text-[11px] hidden xl:inline">Syncing ECMWF...</span>
           </div>
+        )}
+
+        {/* Cyclone Trajectory & Radar Button */}
+        {onOpenCyclone && (
+          <button
+            onClick={() => {
+              soundFx.playRadarPing();
+              onOpenCyclone();
+            }}
+            title="Bay of Bengal Cyclone Trajectory & Wind Radii Radar (Michaung-9)"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-red-950/60 border border-red-500/50 text-red-300 font-mono text-xs hover:bg-red-900/50 hover:border-red-400 transition-all flex-shrink-0 shadow-[0_0_12px_rgba(239,68,68,0.2)] animate-pulse"
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
+            <span className="font-bold">Cyclone Radar</span>
+          </button>
         )}
 
         {/* Twin-to-Twin Benchmark Modal Button */}

@@ -12,6 +12,11 @@ import { NotificationDrawer } from './components/common/NotificationDrawer';
 import { ExecutiveDossierModal } from './components/common/ExecutiveDossierModal';
 import { ShortcutsModal } from './components/common/ShortcutsModal';
 import { TwinComparisonModal } from './components/common/TwinComparisonModal';
+import { CycloneTrackerModal } from './components/common/CycloneTrackerModal';
+import { SatelliteTimeLapseModal } from './components/common/SatelliteTimeLapseModal';
+import { IoTSensorNetworkModal } from './components/common/IoTSensorNetworkModal';
+import { StreetInundationViewer } from './components/common/StreetInundationViewer';
+import { EvacuationRoutesModal } from './components/common/EvacuationRoutesModal';
 import { CinematicIntro } from './components/intro/CinematicIntro';
 import { EarthGlobe } from './components/3d/EarthGlobe';
 import { FallbackMap2D } from './components/3d/FallbackMap2D';
@@ -48,6 +53,11 @@ export const App: React.FC = () => {
   const [isDataSourcesOpen, setIsDataSourcesOpen] = useState(false);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
   const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+  const [isCycloneOpen, setIsCycloneOpen] = useState(false);
+  const [isTimeLapseOpen, setIsTimeLapseOpen] = useState(false);
+  const [isIoTOpen, setIsIoTOpen] = useState(false);
+  const [isStreetViewOpen, setIsStreetViewOpen] = useState(false);
+  const [isEvacuationOpen, setIsEvacuationOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
   // Live telemetry stream state (Open-Meteo)
@@ -97,6 +107,21 @@ export const App: React.FC = () => {
       } else if (e.key.toLowerCase() === 'd') {
         soundFx.playClick();
         setIsDossierOpen(true);
+      } else if (e.key.toLowerCase() === 'c') {
+        soundFx.playRadarPing();
+        setIsCycloneOpen(true);
+      } else if (e.key.toLowerCase() === 't') {
+        soundFx.playClick();
+        setIsTimeLapseOpen(true);
+      } else if (e.key.toLowerCase() === 'i') {
+        soundFx.playClick();
+        setIsIoTOpen(true);
+      } else if (e.key.toLowerCase() === 's') {
+        soundFx.playClick();
+        setIsStreetViewOpen(true);
+      } else if (e.key.toLowerCase() === 'e') {
+        soundFx.playClick();
+        setIsEvacuationOpen(true);
       } else if (e.key === '?') {
         soundFx.playClick();
         setIsShortcutsOpen((prev) => !prev);
@@ -140,6 +165,7 @@ export const App: React.FC = () => {
         onToggleNotifications={() => setIsNotificationsOpen(true)}
         onOpenDossier={() => setIsDossierOpen(true)}
         onOpenComparison={() => setIsComparisonOpen(true)}
+        onOpenCyclone={() => setIsCycloneOpen(true)}
         liveWeather={liveWeather}
         isLiveLoading={isLiveLoading}
         onRefreshWeather={() => loadLiveWeather(selectedCity)}
@@ -152,6 +178,11 @@ export const App: React.FC = () => {
         onChangeMode={handleModeChange}
         onOpenDataSources={() => setIsDataSourcesOpen(true)}
         onOpenComparison={() => setIsComparisonOpen(true)}
+        onOpenCyclone={() => setIsCycloneOpen(true)}
+        onOpenTimeLapse={() => setIsTimeLapseOpen(true)}
+        onOpenIoT={() => setIsIoTOpen(true)}
+        onOpenStreetView={() => setIsStreetViewOpen(true)}
+        onOpenEvacuation={() => setIsEvacuationOpen(true)}
       />
 
       {/* Main Spatial Command Centre Workspace */}
@@ -374,6 +405,48 @@ export const App: React.FC = () => {
       <ShortcutsModal
         isOpen={isShortcutsOpen}
         onClose={() => setIsShortcutsOpen(false)}
+      />
+
+      {/* FEATURE 1: BAY OF BENGAL CYCLONE TRAJECTORY & RADAR */}
+      <CycloneTrackerModal
+        isOpen={isCycloneOpen}
+        onClose={() => setIsCycloneOpen(false)}
+        onTrackOnMap={(coords) => {
+          setSelectedCity({ ...selectedCity, lng: coords[0], lat: coords[1] });
+          setViewMode('twin');
+        }}
+      />
+
+      {/* FEATURE 2: HISTORICAL SATELLITE TIME-LAPSE COMPARISON */}
+      <SatelliteTimeLapseModal
+        isOpen={isTimeLapseOpen}
+        onClose={() => setIsTimeLapseOpen(false)}
+      />
+
+      {/* FEATURE 3: IOT RIVER GAUGE & SLUICE GATE TELEMETRY NETWORK */}
+      <IoTSensorNetworkModal
+        isOpen={isIoTOpen}
+        onClose={() => setIsIoTOpen(false)}
+        onFocusSensorOnMap={(coords) => {
+          setSelectedCity({ ...selectedCity, lng: coords[0], lat: coords[1] });
+          setViewMode('twin');
+        }}
+      />
+
+      {/* FEATURE 5: FIRST-PERSON 3D STREET-LEVEL INUNDATION CAMERA */}
+      <StreetInundationViewer
+        isOpen={isStreetViewOpen}
+        onClose={() => setIsStreetViewOpen(false)}
+      />
+
+      {/* EMERGENCY EVACUATION & RELIEF SHELTERS COMMAND */}
+      <EvacuationRoutesModal
+        isOpen={isEvacuationOpen}
+        onClose={() => setIsEvacuationOpen(false)}
+        onSelectShelter={(shelter) => {
+          setSelectedCity({ ...selectedCity, lng: shelter.lng, lat: shelter.lat });
+          setViewMode('twin');
+        }}
       />
     </div>
   );
