@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import type { ViewMode } from '../../types/climate';
-import { Globe, Map, BarChart3, Cpu, Sparkles, Database } from 'lucide-react';
+import { Globe, Map, BarChart3, Cpu, Sparkles, Database, GitCompare } from 'lucide-react';
+import { soundFx } from '../../utils/audioSynthesizer';
 
 interface NavRailProps {
   currentMode: ViewMode;
   onChangeMode: (mode: ViewMode) => void;
   onOpenDataSources: () => void;
+  onOpenComparison?: () => void;
 }
 
 export const NavRail: React.FC<NavRailProps> = ({
   currentMode,
   onChangeMode,
   onOpenDataSources,
+  onOpenComparison,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -114,6 +117,25 @@ export const NavRail: React.FC<NavRailProps> = ({
 
       {/* Footer Navigation items */}
       <div className="pt-2 border-t border-white/10 space-y-2">
+        {onOpenComparison && (
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              onOpenComparison();
+            }}
+            className="w-full flex items-center gap-3.5 p-3 rounded-xl text-slate-400 hover:text-cyan-300 hover:bg-slate-800/60 transition-all group relative"
+            title="Twin-to-Twin Global Benchmark"
+          >
+            <GitCompare className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform text-cyan-400" />
+            {isExpanded && (
+              <div className="text-left overflow-hidden whitespace-nowrap animate-in fade-in duration-200 font-mono text-xs">
+                <span className="text-white block font-medium">Twin Benchmark</span>
+                <span className="text-[9px] text-cyan-400/80">Compare Port Megacities</span>
+              </div>
+            )}
+          </button>
+        )}
+
         <button
           onClick={onOpenDataSources}
           className="w-full flex items-center gap-3.5 p-3 rounded-xl text-slate-400 hover:text-cyan-300 hover:bg-slate-800/60 transition-all group relative"

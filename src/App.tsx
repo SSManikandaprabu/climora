@@ -11,6 +11,7 @@ import { GlobalSearchModal } from './components/navigation/GlobalSearchModal';
 import { NotificationDrawer } from './components/common/NotificationDrawer';
 import { ExecutiveDossierModal } from './components/common/ExecutiveDossierModal';
 import { ShortcutsModal } from './components/common/ShortcutsModal';
+import { TwinComparisonModal } from './components/common/TwinComparisonModal';
 import { CinematicIntro } from './components/intro/CinematicIntro';
 import { EarthGlobe } from './components/3d/EarthGlobe';
 import { FallbackMap2D } from './components/3d/FallbackMap2D';
@@ -25,6 +26,7 @@ import { ScenarioSimulator } from './components/simulator/ScenarioSimulator';
 import { AIAnalystPanel } from './components/ai/AIAnalystPanel';
 import { ClimateTimeline } from './components/timeline/ClimateTimeline';
 import { DataSourceBadge } from './components/intelligence/DataSourceBadge';
+import { fetchLiveCityWeather, type LiveWeatherData } from './utils/weatherApi';
 
 import { ArrowRight, HelpCircle } from 'lucide-react';
 
@@ -45,7 +47,25 @@ export const App: React.FC = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isDataSourcesOpen, setIsDataSourcesOpen] = useState(false);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+
+  // Live telemetry stream state (Open-Meteo)
+  const [liveWeather, setLiveWeather] = useState<LiveWeatherData | null>(null);
+  const [isLiveLoading, setIsLiveLoading] = useState(false);
+
+  const loadLiveWeather = async (city: CityData) => {
+    setIsLiveLoading(true);
+    const data = await fetchLiveCityWeather(city.lat, city.lng);
+    if (data) {
+      setLiveWeather(data);
+    }
+    setIsLiveLoading(false);
+  };
+
+  useEffect(() => {
+    loadLiveWeather(selectedCity);
+  }, [selectedCity]);
 
   // Keyboard shortcut listeners (Cmd/Ctrl+K, 1-5, D, ?)
   useEffect(() => {
@@ -119,6 +139,10 @@ export const App: React.FC = () => {
         onOpenSearch={() => setIsSearchOpen(true)}
         onToggleNotifications={() => setIsNotificationsOpen(true)}
         onOpenDossier={() => setIsDossierOpen(true)}
+        onOpenComparison={() => setIsComparisonOpen(true)}
+        liveWeather={liveWeather}
+        isLiveLoading={isLiveLoading}
+        onRefreshWeather={() => loadLiveWeather(selectedCity)}
         onReplayIntro={() => setShowIntro(true)}
       />
 
@@ -127,6 +151,7 @@ export const App: React.FC = () => {
         currentMode={viewMode}
         onChangeMode={handleModeChange}
         onOpenDataSources={() => setIsDataSourcesOpen(true)}
+        onOpenComparison={() => setIsComparisonOpen(true)}
       />
 
       {/* Main Spatial Command Centre Workspace */}
@@ -180,7 +205,7 @@ export const App: React.FC = () => {
               <div className="absolute top-6 right-6 hidden lg:flex flex-col gap-3 w-80 pointer-events-none z-10">
                 <div className="pointer-events-auto">
                   <TemperatureGauge
-                    currentTemp={selectedCity.currentTemp}
+                    currentTemp={liveWeather ? liveWeather.temperature : selectedCity.currentTemp}
                     tempAnomaly={selectedCity.tempAnomaly}
                     city={selectedCity.name}
                   />
@@ -193,7 +218,7 @@ export const App: React.FC = () => {
                 </div>
                 <div className="pointer-events-auto">
                   <RainfallIntensity
-                    precipitationRate={selectedCity.precipitationRate}
+                    precipitationRate={liveWeather && liveWeather.precipitation > 0 ? liveWeather.precipitation : selectedCity.precipitationRate}
                     city={selectedCity.name}
                   />
                 </div>
@@ -221,12 +246,12 @@ export const App: React.FC = () => {
             <div className="w-full h-full overflow-y-auto p-4 sm:p-6 space-y-6 bg-[#060c18]/90">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <TemperatureGauge
-                  currentTemp={selectedCity.currentTemp}
+                  currentTemp={liveWeather ? liveWeather.temperature : selectedCity.currentTemp}
                   tempAnomaly={selectedCity.tempAnomaly}
                   city={selectedCity.name}
                 />
                 <RainfallIntensity
-                  precipitationRate={selectedCity.precipitationRate}
+                  precipitationRate={liveWeather && liveWeather.precipitation > 0 ? liveWeather.precipitation : selectedCity.precipitationRate}
                   city={selectedCity.name}
                 />
                 <FloodRiskGauge
@@ -234,7 +259,13 @@ export const App: React.FC = () => {
                   riskLevel={selectedCity.riskLevel}
                 />
                 <HeatExposureGauge city={selectedCity.name} />
-                <EnvironmentalQuality humidity={selectedCity.humidity} />
+                <EnvironmentalQuality
+                  humidity={liveWeather ? liveWeather.humidity : selectedCity.humidity}
+                  pressure={liveWeather ? liveWeather.surfacePressure : 1008.4}
+                  windSpeed={liveWeather ? liveWeather.windSpeed : 22.4}
+                  liveUpdated={!!liveWeather}
+                  source={liveWeather ? liveWeather.source : 'CPCB & IMD Port AWS'}
+                />
                 <div className="glass-panel p-4 rounded-xl border border-purple-500/20 flex flex-col justify-between">
                   <div>
                     <span className="font-heading font-semibold text-xs tracking-wide text-slate-100 uppercase block mb-1">
@@ -330,6 +361,13 @@ export const App: React.FC = () => {
         isOpen={isDossierOpen}
         onClose={() => setIsDossierOpen(false)}
         city={selectedCity}
+      />
+
+      {/* TWIN-TO-TWIN RESILIENCE COMPARISON BENCHMARK MODAL */}
+      <TwinComparisonModal
+        isOpen={isComparisonOpen}
+        onClose={() => setIsComparisonOpen(false)}
+        baseCity={selectedCity}
       />
 
       {/* KEYBOARD SHORTCUTS PALETTE */}

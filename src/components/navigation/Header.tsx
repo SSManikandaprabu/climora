@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import type { CityData, ViewMode } from '../../types/climate';
 import { GLOBAL_CITIES } from '../../data/citiesData';
 import { soundFx } from '../../utils/audioSynthesizer';
-import { Search, Bell, Radio, MapPin, RefreshCw, Volume2, VolumeX, FileText } from 'lucide-react';
+import type { LiveWeatherData } from '../../utils/weatherApi';
+import { Search, Bell, Radio, MapPin, RefreshCw, Volume2, VolumeX, FileText, GitCompare, Activity } from 'lucide-react';
 
 interface HeaderProps {
   selectedCity: CityData;
@@ -12,6 +13,10 @@ interface HeaderProps {
   onOpenSearch: () => void;
   onToggleNotifications: () => void;
   onOpenDossier: () => void;
+  onOpenComparison: () => void;
+  liveWeather?: LiveWeatherData | null;
+  isLiveLoading?: boolean;
+  onRefreshWeather?: () => void;
   unreadCount?: number;
   onReplayIntro: () => void;
 }
@@ -24,6 +29,10 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
   onToggleNotifications,
   onOpenDossier,
+  onOpenComparison,
+  liveWeather,
+  isLiveLoading = false,
+  onRefreshWeather,
   unreadCount = 2,
   onReplayIntro,
 }) => {
@@ -115,29 +124,71 @@ export const Header: React.FC<HeaderProps> = ({
             soundFx.playClick();
             onOpenSearch();
           }}
-          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl glass-panel text-slate-400 hover:text-white hover:border-cyan-500/40 text-xs font-mono transition-all"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl glass-panel text-slate-400 hover:text-white hover:border-cyan-500/40 text-xs font-mono transition-all flex-shrink-0 whitespace-nowrap"
         >
-          <Search className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-[11px]">Search zones, sensors, data...</span>
-          <kbd className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">
+          <Search className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+          <span className="text-[11px] hidden xl:inline">Search zones, sensors...</span>
+          <span className="text-[11px] xl:hidden">Search</span>
+          <kbd className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700 flex-shrink-0">
             Ctrl+K
           </kbd>
         </button>
       </div>
 
       {/* Right: Audio, Dossier, Telemetry Health, Notifications, User */}
-      <div className="flex items-center gap-2 md:gap-3">
+      <div className="flex items-center gap-1.5 md:gap-2.5 flex-shrink-0">
         {/* Telemetry Audio Synth Toggle */}
         <button
           onClick={handleToggleSound}
           title={isMuted ? 'Enable Scientific Audio Telemetry' : 'Mute Audio Telemetry'}
-          className={`p-2 rounded-xl transition-colors ${
+          className={`p-2 rounded-xl transition-colors flex-shrink-0 ${
             !isMuted
               ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-[0_0_10px_rgba(34,211,238,0.2)]'
               : 'glass-panel text-slate-400 hover:text-white border border-white/10'
           }`}
         >
           {!isMuted ? <Volume2 className="w-4 h-4 animate-pulse" /> : <VolumeX className="w-4 h-4" />}
+        </button>
+
+        {/* Live Open-Meteo Weather Badge */}
+        {liveWeather ? (
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              if (onRefreshWeather) onRefreshWeather();
+            }}
+            title={`Live Telemetry: ${liveWeather.source}. Updated ${liveWeather.timestamp}. Click to refresh.`}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 font-mono text-xs hover:bg-cyan-900/50 hover:border-cyan-400 transition-all flex-shrink-0 shadow-[0_0_12px_rgba(34,211,238,0.15)] group"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </span>
+            <span className="font-bold tracking-tight text-white group-hover:text-cyan-200">
+              {liveWeather.temperature.toFixed(1)}°C
+            </span>
+            <span className="text-[10px] text-cyan-400/80 hidden 2xl:inline">LIVE SYNC</span>
+            {isLiveLoading && <RefreshCw className="w-3 h-3 animate-spin text-cyan-400" />}
+          </button>
+        ) : (
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/50 border border-white/5 font-mono text-xs text-slate-400 flex-shrink-0">
+            <Activity className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+            <span className="text-[11px] hidden xl:inline">Syncing ECMWF...</span>
+          </div>
+        )}
+
+        {/* Twin-to-Twin Benchmark Modal Button */}
+        <button
+          onClick={() => {
+            soundFx.playClick();
+            onOpenComparison();
+          }}
+          title="Compare City Against Global Port Megacities (Rotterdam, Singapore, Tokyo...)"
+          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-mono font-semibold transition-all shadow-sm flex-shrink-0 whitespace-nowrap"
+        >
+          <GitCompare className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="hidden xl:inline">Twin Benchmark</span>
+          <span className="xl:hidden">Benchmark</span>
         </button>
 
         {/* Executive Dossier Generator Button */}
@@ -147,14 +198,15 @@ export const Header: React.FC<HeaderProps> = ({
             onOpenDossier();
           }}
           title="Open Executive Climate Dossier"
-          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 text-xs font-mono font-semibold transition-all shadow-sm"
+          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 text-xs font-mono font-semibold transition-all shadow-sm flex-shrink-0 whitespace-nowrap"
         >
           <FileText className="w-3.5 h-3.5 text-purple-400" />
-          <span>Executive Dossier</span>
+          <span className="hidden xl:inline">Executive Dossier</span>
+          <span className="xl:hidden">Dossier</span>
         </button>
 
-        {/* Connection Health Indicator */}
-        <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-900/60 border border-white/5 font-mono text-[11px] text-slate-400">
+        {/* Connection Health Indicator (Visible on wider screens to prevent clutter) */}
+        <div className="hidden 2xl:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-900/60 border border-white/5 font-mono text-[11px] text-slate-400 flex-shrink-0">
           <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
           <span>Tele-sync: <strong className="text-white">99.98%</strong></span>
           <span className="text-slate-600">|</span>
@@ -168,7 +220,7 @@ export const Header: React.FC<HeaderProps> = ({
             onReplayIntro();
           }}
           title="Replay Cinematic Intro"
-          className="p-2 rounded-xl glass-panel text-slate-400 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors hidden sm:flex items-center justify-center"
+          className="p-2 rounded-xl glass-panel text-slate-400 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors hidden lg:flex items-center justify-center flex-shrink-0"
         >
           <RefreshCw className="w-4 h-4" />
         </button>

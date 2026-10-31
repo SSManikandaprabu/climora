@@ -3,9 +3,19 @@ import { Wind, ShieldCheck } from 'lucide-react';
 
 interface EnvironmentalQualityProps {
   humidity: number;
+  pressure?: number;
+  windSpeed?: number;
+  liveUpdated?: boolean;
+  source?: string;
 }
 
-export const EnvironmentalQuality: React.FC<EnvironmentalQualityProps> = ({ humidity }) => {
+export const EnvironmentalQuality: React.FC<EnvironmentalQualityProps> = ({
+  humidity,
+  pressure = 1008.4,
+  windSpeed = 22.4,
+  liveUpdated = false,
+  source = 'CPCB & IMD Port AWS',
+}) => {
   return (
     <div className="glass-panel p-4 rounded-xl border border-cyan-500/20 text-white shadow-xl relative overflow-hidden group hover:border-cyan-500/40 transition-all">
       {/* Header */}
@@ -23,7 +33,7 @@ export const EnvironmentalQuality: React.FC<EnvironmentalQualityProps> = ({ humi
         </div>
         <div className="flex items-center gap-1 font-mono text-[9px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
           <ShieldCheck className="w-3 h-3" />
-          <span>Real-time AWS</span>
+          <span>{liveUpdated ? 'Live Open-Meteo Feed' : 'Real-time AWS'}</span>
         </div>
       </div>
 
@@ -31,20 +41,20 @@ export const EnvironmentalQuality: React.FC<EnvironmentalQualityProps> = ({ humi
       <div className="mt-3 grid grid-cols-3 gap-2">
         <div className="p-2 rounded-lg bg-slate-900/60 border border-white/5">
           <span className="text-[10px] font-mono text-slate-400 block">Relative Humidity</span>
-          <span className="font-mono text-base font-bold text-cyan-300">{humidity}%</span>
-          <span className="text-[9px] font-mono text-slate-500 block">Dew Point: 26.8°C</span>
+          <span className="font-mono text-base font-bold text-cyan-300">{Math.round(humidity)}%</span>
+          <span className="text-[9px] font-mono text-slate-500 block">Dew Point: {(humidity > 70 ? 26.8 : 22.4).toFixed(1)}°C</span>
         </div>
 
         <div className="p-2 rounded-lg bg-slate-900/60 border border-white/5">
           <span className="text-[10px] font-mono text-slate-400 block">Barometric Pressure</span>
-          <span className="font-mono text-base font-bold text-white">1008.4</span>
-          <span className="text-[9px] font-mono text-slate-500 block">hPa (Falling)</span>
+          <span className="font-mono text-base font-bold text-white">{pressure.toFixed(1)}</span>
+          <span className="text-[9px] font-mono text-slate-500 block">hPa (Equatorial)</span>
         </div>
 
         <div className="p-2 rounded-lg bg-slate-900/60 border border-white/5">
           <span className="text-[10px] font-mono text-slate-400 block">Surface Winds</span>
-          <span className="font-mono text-base font-bold text-emerald-300">22.4</span>
-          <span className="text-[9px] font-mono text-slate-500 block">km/h ENE (Gust 38)</span>
+          <span className="font-mono text-base font-bold text-emerald-300">{windSpeed.toFixed(1)}</span>
+          <span className="text-[9px] font-mono text-slate-500 block">km/h (Vector Stream)</span>
         </div>
       </div>
 
@@ -56,8 +66,8 @@ export const EnvironmentalQuality: React.FC<EnvironmentalQualityProps> = ({ humi
 
       {/* Provenance Footer */}
       <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-slate-500">
-        <span>Source: CPCB & IMD Alipore Calibration</span>
-        <span>Node: Chennai Port AWS</span>
+        <span>Source: {source}</span>
+        <span>Telemetry Status: Active</span>
       </div>
     </div>
   );

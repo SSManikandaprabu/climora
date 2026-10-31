@@ -1,6 +1,7 @@
 import React from 'react';
 import type { MapLayerState } from '../../types/climate';
-import { Layers, Droplets, Flame, CloudRain, Trees, Waves, Radio, Sliders } from 'lucide-react';
+import { Layers, Droplets, Flame, CloudRain, Trees, Waves, Radio, Sliders, X } from 'lucide-react';
+import { soundFx } from '../../utils/audioSynthesizer';
 
 export type MapBaseStyle = 'google-hybrid' | 'google-satellite' | 'google-roadmap' | 'google-terrain' | 'dark';
 
@@ -10,6 +11,7 @@ interface LayerControllerProps {
   onOpacityChange: (layerKey: keyof MapLayerState['opacity'], value: number) => void;
   baseStyle: MapBaseStyle;
   onChangeBaseStyle: (style: MapBaseStyle) => void;
+  onClose?: () => void;
 }
 
 export const LayerController: React.FC<LayerControllerProps> = ({
@@ -18,17 +20,32 @@ export const LayerController: React.FC<LayerControllerProps> = ({
   onOpacityChange,
   baseStyle,
   onChangeBaseStyle,
+  onClose,
 }) => {
   return (
-    <div className="glass-panel p-4 rounded-xl border border-cyan-500/20 text-xs w-80 max-h-[85vh] overflow-y-auto select-none shadow-2xl backdrop-blur-xl">
-      <div className="flex items-center justify-between pb-3 border-b border-white/10">
+    <div className="glass-panel-elevated p-4 rounded-2xl border border-cyan-500/30 text-xs w-80 max-h-[75vh] overflow-y-auto select-none shadow-2xl backdrop-blur-2xl">
+      <div className="flex items-center justify-between pb-2.5 border-b border-white/10">
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-cyan-400" />
-          <span className="font-heading font-semibold text-white tracking-wide">Google Maps GIS Cartography</span>
+          <span className="font-heading font-semibold text-white tracking-wide">GIS Cartography</span>
         </div>
-        <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
-          Google Powered
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-semibold">
+            Google Maps
+          </span>
+          {onClose && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onClose();
+              }}
+              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors ml-1"
+              title="Close GIS Layers"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Google Maps Base Style Selector */}

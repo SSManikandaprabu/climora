@@ -43,9 +43,11 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
   const markersRef = useRef<maplibregl.Marker[]>([]);
 
   const [selectedNeighbourhood, setSelectedNeighbourhood] = useState<NeighbourhoodData | null>(
-    CHENNAI_NEIGHBOURHOODS[0]
+    highlightNeighbourhoodId
+      ? CHENNAI_NEIGHBOURHOODS.find((n) => n.id === highlightNeighbourhoodId) || null
+      : null
   );
-  const [showLayerController, setShowLayerController] = useState(true);
+  const [showLayerController, setShowLayerController] = useState<boolean>(false);
   const [baseStyle, setBaseStyle] = useState<MapBaseStyle>('google-hybrid');
   const [floodDepthFilter, setFloodDepthFilter] = useState<number>(1.4); // Water depth in meters (0.2 to 2.5m)
   const [show3DBuildings, setShow3DBuildings] = useState<boolean>(true);
@@ -508,108 +510,109 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
         </div>
       )}
 
-      {/* Top Left Command HUD */}
-      <div className="absolute top-5 left-6 flex items-center gap-3 select-none pointer-events-auto z-10">
-        <button
-          onClick={() => {
-            soundFx.playClick();
-            onBackToGlobe();
-          }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass-panel hover:border-cyan-500/50 text-slate-300 hover:text-white font-mono text-xs transition-all shadow-lg"
-        >
-          <Globe className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Exit to Planetary 3D</span>
-        </button>
+      {/* Top Floating Command Bar (Single Responsive Non-Colliding Flex Deck) */}
+      <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none gap-2">
+        {/* Left: Exit to 3D Orbit + Title */}
+        <div className="flex items-center gap-2 pointer-events-auto flex-shrink-0">
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              onBackToGlobe();
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-panel hover:border-cyan-500/50 text-slate-300 hover:text-white font-mono text-xs transition-all shadow-lg"
+          >
+            <Globe className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="hidden sm:inline">3D Earth</span>
+          </button>
 
-        <div className="glass-panel px-3 py-1.5 rounded-lg border border-cyan-500/20 flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-          </span>
-          <span className="font-mono text-xs font-semibold text-white uppercase tracking-wider">
-            {city.name} Google Maps Digital Twin • 3D Buildings & Hydro Engine
-          </span>
+          <div className="glass-panel px-3 py-1.5 rounded-xl border border-cyan-500/20 flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </span>
+            <span className="font-mono text-xs font-semibold text-white uppercase tracking-wider">
+              {city.name} <span className="text-cyan-400 font-normal">Digital Twin</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Center: Water Level Inundation Scrubber */}
+        <div className="hidden lg:flex items-center gap-2.5 glass-panel px-3.5 py-1.5 rounded-xl border border-blue-500/30 text-xs font-mono shadow-xl pointer-events-auto backdrop-blur-xl">
+          <Droplets className="w-3.5 h-3.5 text-blue-400 animate-pulse flex-shrink-0" />
+          <span className="text-slate-300 text-[11px] whitespace-nowrap">Water Level:</span>
+          <input
+            type="range"
+            min="0.2"
+            max="2.5"
+            step="0.1"
+            value={floodDepthFilter}
+            onChange={(e) => setFloodDepthFilter(parseFloat(e.target.value))}
+            className="w-24 accent-blue-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+          />
+          <span className="font-bold text-cyan-300 font-mono text-xs w-10">{floodDepthFilter.toFixed(1)}m</span>
+        </div>
+
+        {/* Right: 3D Blocks, GIS Layers, Google Maps 3D */}
+        <div className="flex items-center gap-1.5 sm:gap-2 pointer-events-auto flex-shrink-0">
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setShow3DBuildings(!show3DBuildings);
+            }}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium transition-all shadow-lg ${
+              show3DBuildings
+                ? 'bg-purple-500/25 text-purple-300 border border-purple-500/60'
+                : 'glass-panel text-slate-400 hover:text-white border border-white/10'
+            }`}
+            title="Toggle 3D Urban Architecture Extrusions"
+          >
+            <Building2 className="w-3.5 h-3.5 text-purple-400" />
+            <span className="hidden sm:inline">3D Blocks</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setShowLayerController(!showLayerController);
+            }}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium transition-all shadow-lg ${
+              showLayerController
+                ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/60 shadow-[0_0_12px_rgba(34,211,238,0.2)]'
+                : 'glass-panel text-slate-300 hover:text-white border border-white/10'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5 text-cyan-400" />
+            <span>GIS Layers</span>
+          </button>
+
+          <button
+            onClick={handleOpenGoogleMaps}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-semibold transition-all shadow-lg"
+            title="Open Current Coordinates in Google Maps 3D Satellite"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span className="hidden xl:inline">Google Maps 3D</span>
+          </button>
         </div>
       </div>
 
-      {/* Floating Center: Inundation Water Level Scrubber */}
-      <div className="absolute top-5 left-1/2 -translate-x-1/2 z-20 hidden md:flex items-center gap-3 glass-panel px-4 py-2 rounded-xl border border-blue-500/30 text-xs font-mono shadow-2xl backdrop-blur-xl">
-        <Droplets className="w-4 h-4 text-blue-400 animate-pulse" />
-        <span className="text-slate-300">Simulate Water Level:</span>
-        <input
-          type="range"
-          min="0.2"
-          max="2.5"
-          step="0.1"
-          value={floodDepthFilter}
-          onChange={(e) => setFloodDepthFilter(parseFloat(e.target.value))}
-          className="w-32 accent-blue-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
-        />
-        <span className="font-bold text-cyan-300 w-12">{floodDepthFilter.toFixed(1)}m</span>
-        <span className="text-[10px] text-slate-400 font-sans">
-          ({floodDepthFilter > 1.4 ? 'Catastrophic Deluge' : 'Tidal Backflow'})
-        </span>
-      </div>
-
-      {/* Top Right: Layer Controller Toggle, 3D Extrusion & Google Maps 3D Link */}
-      <div className="absolute top-5 right-6 flex items-center gap-2 z-10">
-        <button
-          onClick={handleOpenGoogleMaps}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-semibold transition-all shadow-xl"
-          title="Open Current Coordinates in Google Maps 3D Satellite"
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span>Google Maps 3D</span>
-        </button>
-
-        <button
-          onClick={() => {
-            soundFx.playClick();
-            setShow3DBuildings(!show3DBuildings);
-          }}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all shadow-xl ${
-            show3DBuildings
-              ? 'bg-purple-500/25 text-purple-300 border border-purple-500/60'
-              : 'glass-panel text-slate-400 hover:text-white border border-white/10'
-          }`}
-          title="Toggle 3D Urban Architecture Extrusions"
-        >
-          <Building2 className="w-4 h-4 text-purple-400" />
-          <span>3D Blocks</span>
-        </button>
-
-        <button
-          onClick={() => {
-            soundFx.playClick();
-            setShowLayerController(!showLayerController);
-          }}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all shadow-xl ${
-            showLayerController
-              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/60'
-              : 'glass-panel text-slate-300 hover:text-white border border-white/10'
-          }`}
-        >
-          <Layers className="w-4 h-4 text-cyan-400" />
-          <span>GIS Layers</span>
-        </button>
-      </div>
-
-      {/* Floating Layer Controller Panel */}
+      {/* Floating Layer Controller Panel (Slide-in Over Panel) */}
       {showLayerController && (
-        <div className="absolute top-16 right-6 z-20 animate-in fade-in slide-in-from-right-3">
+        <div className="absolute top-16 right-4 z-30 animate-in fade-in slide-in-from-right-3">
           <LayerController
             layers={layers}
             onToggleLayer={toggleLayer}
             onOpacityChange={changeOpacity}
             baseStyle={baseStyle}
             onChangeBaseStyle={setBaseStyle}
+            onClose={() => setShowLayerController(false)}
           />
         </div>
       )}
 
-      {/* Selected Neighbourhood Floating Intelligence Card */}
+      {/* Selected Neighbourhood Floating Intelligence Card (Non-intrusive bottom dock) */}
       {selectedNeighbourhood && (
-        <div className="absolute bottom-6 left-6 z-20">
+        <div className="absolute bottom-5 left-4 z-20">
           <NeighbourhoodModal
             neighbourhood={selectedNeighbourhood}
             onClose={() => setSelectedNeighbourhood(null)}
@@ -620,48 +623,46 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
       )}
 
       {/* Map Camera Controls */}
-      <div className="absolute bottom-6 right-6 flex flex-col gap-1.5 glass-panel p-1.5 rounded-xl border border-white/10 z-10 shadow-2xl">
+      <div className="absolute bottom-5 right-4 flex flex-col gap-1 glass-panel p-1.5 rounded-xl border border-white/10 z-10 shadow-2xl">
         <button
           onClick={() => handleZoom(1)}
           title="Zoom In"
-          className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+          className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={() => handleZoom(-1)}
           title="Zoom Out"
-          className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+          className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
         >
           <ZoomOut className="w-4 h-4" />
         </button>
-        <div className="w-full h-[1px] bg-white/10" />
+        <div className="w-full h-[1px] bg-white/10 my-0.5" />
         <button
           onClick={handleRotatePitch}
           title="Toggle 3D Topographic Perspective Tilt"
-          className="p-2 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-white/10 transition-colors"
+          className="p-1.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-white/10 transition-colors"
         >
           <Compass className="w-4 h-4" />
         </button>
         <button
           onClick={handleResetCenter}
           title="Reset Center & Bearing"
-          className="p-2 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-white/10 transition-colors"
+          className="p-1.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-white/10 transition-colors"
         >
           <Crosshair className="w-4 h-4" />
         </button>
       </div>
 
       {/* Live Cursor Coordinate & Ground Elevation Reticle HUD */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex items-center gap-3 glass-panel px-4 py-2 rounded-full border border-cyan-500/25 text-xs font-mono text-slate-300 shadow-2xl">
-        <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-        <span>Target: <strong className="text-white">{cursorCoords.lat}°N, {cursorCoords.lng}°E</strong></span>
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 hidden xl:flex items-center gap-2.5 glass-panel px-3.5 py-1.5 rounded-full border border-cyan-500/20 text-[11px] font-mono text-slate-300 shadow-xl z-10 pointer-events-none">
+        <Radio className="w-3 h-3 text-cyan-400 animate-pulse" />
+        <span>Target: <strong className="text-white">{cursorCoords.lat.toFixed(4)}°N, {cursorCoords.lng.toFixed(4)}°E</strong></span>
         <span className="text-slate-600">|</span>
         <span>Elevation: <strong className="text-purple-300">{cursorCoords.elevation}m MSL</strong></span>
         <span className="text-slate-600">|</span>
-        <span>Base: <strong className="text-cyan-300 uppercase">{baseStyle.replace('-', ' ')}</strong></span>
-        <span className="text-slate-600">|</span>
-        <span className="text-emerald-400 font-bold">Google Maps Active</span>
+        <span className="text-emerald-400 font-semibold">Google Hybrid Active</span>
       </div>
     </div>
   );
