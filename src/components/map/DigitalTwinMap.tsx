@@ -1,14 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
-import type { CityData, NeighbourhoodData, MapLayerState } from '../../types/climate';
+import type { CityData, NeighbourhoodData, MapLayerState, ReliefShelter } from '../../types/climate';
 import {
   CHENNAI_NEIGHBOURHOODS,
   SENSOR_TELEMETRY_NODES,
   CHENNAI_HYDRO_GEOJSON,
   CHENNAI_3D_BUILDINGS_GEOJSON,
+  CHENNAI_RELIEF_SHELTERS,
+  CHENNAI_EVACUATION_ROUTES_GEOJSON,
 } from '../../data/chennaiGeoData';
 import { LayerController, MapBaseStyle } from './LayerController';
 import { NeighbourhoodModal } from './NeighbourhoodModal';
+import { EvacuationRoutesModal } from '../common/EvacuationRoutesModal';
 import { soundFx } from '../../utils/audioSynthesizer';
 import {
   Layers,
@@ -21,6 +24,7 @@ import {
   Droplets,
   Building2,
   ExternalLink,
+  Navigation,
 } from 'lucide-react';
 
 interface DigitalTwinMapProps {
@@ -67,6 +71,8 @@ export const DigitalTwinMap: React.FC<DigitalTwinMapProps> = ({
     waterBodies: true,
     elevationContour: true,
     sensorNodes: true,
+    evacuationRoutes: true,
+    reliefShelters: true,
     opacity: {
       floodRisk: 0.8,
       heatRisk: 0.65,

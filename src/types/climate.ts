@@ -73,12 +73,34 @@ export interface MapLayerState {
   waterBodies: boolean;
   elevationContour: boolean;
   sensorNodes: boolean;
+  evacuationRoutes: boolean;
+  reliefShelters: boolean;
   opacity: {
     floodRisk: number;
     heatRisk: number;
     rainfallRadar: number;
     vegetation: number;
   };
+}
+
+export interface ReliefShelter {
+  id: string;
+  name: string;
+  category: 'Major High-Ground Shelter' | 'NDRF Boat Staging Depot' | 'Medical Emergency Center' | 'Air Rescue Base';
+  lat: number;
+  lng: number;
+  elevation: number;
+  capacity: number;
+  currentOccupancy: number;
+  status: 'Operational' | 'Standby' | 'Near Capacity';
+  contact: string;
+  supplies: {
+    cleanWaterDays: number;
+    powerGenerators: boolean;
+    medicalStaff: number;
+    rescueBoats: number;
+  };
+  connectedZones: string[];
 }
 
 export interface AIMessage {

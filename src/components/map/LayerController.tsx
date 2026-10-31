@@ -1,6 +1,6 @@
 import React from 'react';
 import type { MapLayerState } from '../../types/climate';
-import { Layers, Droplets, Flame, CloudRain, Trees, Waves, Radio, Sliders, X } from 'lucide-react';
+import { Layers, Droplets, Flame, CloudRain, Trees, Waves, Radio, Sliders, X, Navigation, Home } from 'lucide-react';
 import { soundFx } from '../../utils/audioSynthesizer';
 
 export type MapBaseStyle = 'google-hybrid' | 'google-satellite' | 'google-roadmap' | 'google-terrain' | 'dark';
@@ -241,6 +241,40 @@ export const LayerController: React.FC<LayerControllerProps> = ({
               Waterways & Marsh Basins
             </span>
             <span className="text-[10px] font-mono text-blue-400">ADYAR / COOUM</span>
+          </label>
+        </div>
+
+        {/* Strategic Evacuation Corridors */}
+        <div className="p-2.5 rounded-lg bg-slate-900/50 border border-white/5 hover:border-emerald-500/30 transition-colors">
+          <label className="flex items-center justify-between cursor-pointer">
+            <span className="flex items-center gap-2 font-medium text-slate-200">
+              <input
+                type="checkbox"
+                checked={layers.evacuationRoutes}
+                onChange={() => onToggleLayer('evacuationRoutes')}
+                className="rounded border-slate-700 text-emerald-400 focus:ring-0 w-3.5 h-3.5 bg-slate-800"
+              />
+              <Navigation className="w-3.5 h-3.5 text-emerald-400" />
+              Evacuation Corridors
+            </span>
+            <span className="text-[10px] font-mono text-emerald-400 font-semibold">HIGH GROUND</span>
+          </label>
+        </div>
+
+        {/* Relief Shelters (GCC & NDRF Safe Havens) */}
+        <div className="p-2.5 rounded-lg bg-slate-900/50 border border-white/5 hover:border-emerald-500/30 transition-colors">
+          <label className="flex items-center justify-between cursor-pointer">
+            <span className="flex items-center gap-2 font-medium text-slate-200">
+              <input
+                type="checkbox"
+                checked={layers.reliefShelters}
+                onChange={() => onToggleLayer('reliefShelters')}
+                className="rounded border-slate-700 text-emerald-400 focus:ring-0 w-3.5 h-3.5 bg-slate-800"
+              />
+              <Home className="w-3.5 h-3.5 text-emerald-400" />
+              Relief Shelters (GCC 1913)
+            </span>
+            <span className="text-[10px] font-mono text-emerald-400 font-semibold">SAFE HAVENS</span>
           </label>
         </div>
 

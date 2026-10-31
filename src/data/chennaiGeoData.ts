@@ -1,4 +1,4 @@
-import type { NeighbourhoodData } from '../types/climate';
+import type { NeighbourhoodData, ReliefShelter } from '../types/climate';
 
 export const CHENNAI_NEIGHBOURHOODS: NeighbourhoodData[] = [
   {
@@ -414,6 +414,199 @@ export const CHENNAI_3D_BUILDINGS_GEOJSON = {
         coordinates: [[
           [80.276, 13.060], [80.284, 13.060], [80.284, 13.068], [80.276, 13.068], [80.276, 13.060]
         ]]
+      }
+    }
+  ]
+};
+
+// Designated Municipal Flood Relief Shelters & Rescue Depots
+export const CHENNAI_RELIEF_SHELTERS: ReliefShelter[] = [
+  {
+    id: 'anna_univ',
+    name: 'Anna University CEG Relief Hub',
+    category: 'Major High-Ground Shelter',
+    lat: 13.0110,
+    lng: 80.2355,
+    elevation: 12.5,
+    capacity: 12000,
+    currentOccupancy: 4250,
+    status: 'Operational',
+    contact: '+91 44 2235 7004 (GCC Sector 8)',
+    supplies: {
+      cleanWaterDays: 14,
+      powerGenerators: true,
+      medicalStaff: 32,
+      rescueBoats: 6,
+    },
+    connectedZones: ['Velachery', 'Guindy', 'Saidapet', 'Adyar'],
+  },
+  {
+    id: 'jn_stadium',
+    name: 'Jawaharlal Nehru Indoor Stadium',
+    category: 'Major High-Ground Shelter',
+    lat: 13.0842,
+    lng: 80.2764,
+    elevation: 9.2,
+    capacity: 8500,
+    currentOccupancy: 2800,
+    status: 'Operational',
+    contact: '+91 44 2538 4501 (EOC Central)',
+    supplies: {
+      cleanWaterDays: 10,
+      powerGenerators: true,
+      medicalStaff: 24,
+      rescueBoats: 12,
+    },
+    connectedZones: ['Chennai Central', 'Periamet', 'Choolai', 'George Town'],
+  },
+  {
+    id: 'loyola_camp',
+    name: 'Loyola College High Grounds Depot',
+    category: 'Medical Emergency Center',
+    lat: 13.0628,
+    lng: 80.2338,
+    elevation: 10.4,
+    capacity: 6500,
+    currentOccupancy: 3100,
+    status: 'Operational',
+    contact: '+91 44 2817 8200 (Medical Response Wing)',
+    supplies: {
+      cleanWaterDays: 8,
+      powerGenerators: true,
+      medicalStaff: 40,
+      rescueBoats: 4,
+    },
+    connectedZones: ['T. Nagar', 'Nungambakkam', 'Kodambakkam', 'Chetpet'],
+  },
+  {
+    id: 'tambaram_airbase',
+    name: 'Tambaram IAF Base (Air Evacuation Command)',
+    category: 'Air Rescue Base',
+    lat: 12.9150,
+    lng: 80.1200,
+    elevation: 28.0,
+    capacity: 5000,
+    currentOccupancy: 950,
+    status: 'Operational',
+    contact: '+91 44 2239 5500 (NDRF / IAF Coordination)',
+    supplies: {
+      cleanWaterDays: 30,
+      powerGenerators: true,
+      medicalStaff: 55,
+      rescueBoats: 18,
+    },
+    connectedZones: ['Pallikaranai', 'Perumbakkam', 'Tambaram', 'Medavakkam'],
+  },
+  {
+    id: 'phoenix_bypass',
+    name: 'Phoenix-Velachery Elevated Relief Deck',
+    category: 'NDRF Boat Staging Depot',
+    lat: 12.9860,
+    lng: 80.2195,
+    elevation: 7.8,
+    capacity: 3800,
+    currentOccupancy: 2750,
+    status: 'Near Capacity',
+    contact: '+91 44 2243 1102 (NDRF 4th Battalion)',
+    supplies: {
+      cleanWaterDays: 6,
+      powerGenerators: true,
+      medicalStaff: 18,
+      rescueBoats: 16,
+    },
+    connectedZones: ['Velachery Low Sump', 'Madipakkam', 'Adambakkam'],
+  },
+];
+
+// Strategic High-Ground Evacuation Corridors (GeoJSON LineStrings)
+export const CHENNAI_EVACUATION_ROUTES_GEOJSON = {
+  type: 'FeatureCollection',
+  features: [
+    // Corridor Alpha: Velachery Inundation Sump -> Guindy High Grounds
+    {
+      type: 'Feature',
+      properties: {
+        id: 'route_alpha',
+        name: 'Corridor Alpha (Velachery Bypass -> Guindy High Grounds)',
+        clearance: 'Elevated Viaduct Passable',
+        elevationGain: '+8.4m',
+        distanceKm: '4.8 km',
+        priority: 'CRITICAL EVACUATION',
+        color: '#10b981', // green safe
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [80.2180, 12.9815], // Velachery
+          [80.2160, 12.9900], // Inner Ring Road
+          [80.2140, 13.0010], // Halda Junction
+          [80.2150, 13.0102], // Guindy & Saidapet High Grounds
+          [80.2355, 13.0110]  // Anna University Shelter
+        ]
+      }
+    },
+    // Corridor Bravo: Pallikaranai Marsh -> Tambaram Air Force Base
+    {
+      type: 'Feature',
+      properties: {
+        id: 'route_bravo',
+        name: 'Corridor Bravo (200ft Radial Flyover -> Tambaram High Grounds)',
+        clearance: 'NDRF Heavy Vehicle Escort',
+        elevationGain: '+26.2m',
+        distanceKm: '9.2 km',
+        priority: 'HIGH PRIORITY',
+        color: '#22d3ee', // cyan
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [80.2137, 12.9349], // Pallikaranai
+          [80.1850, 12.9360], // Medavakkam High Rd
+          [80.1500, 12.9250], // East Tambaram
+          [80.1200, 12.9150]  // Tambaram Air Base
+        ]
+      }
+    },
+    // Corridor Charlie: T. Nagar -> Loyola College High Grounds
+    {
+      type: 'Feature',
+      properties: {
+        id: 'route_charlie',
+        name: 'Corridor Charlie (G.N. Chetty Arterial -> Loyola Campus)',
+        clearance: 'Clear / Paved',
+        elevationGain: '+3.6m',
+        distanceKm: '3.1 km',
+        priority: 'STANDARD ROUTE',
+        color: '#38bdf8', // light blue
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [80.2341, 13.0418], // T. Nagar
+          [80.2360, 13.0510], // Gemini / Sterling Rd
+          [80.2338, 13.0628]  // Loyola Shelter
+        ]
+      }
+    },
+    // Corridor Delta: Perumbakkam OMR -> ECR Coastal Ridge (Sand Dunes)
+    {
+      type: 'Feature',
+      properties: {
+        id: 'route_delta',
+        name: 'Corridor Delta (Sholinganallur Link -> ECR Dune High Ground)',
+        clearance: 'Tidal Backflow Watch',
+        elevationGain: '+5.2m',
+        distanceKm: '3.6 km',
+        priority: 'SECONDARY CONTINGENCY',
+        color: '#f59e0b', // warning amber
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [80.2084, 12.8988], // Perumbakkam
+          [80.2280, 12.9000], // Sholinganallur Junction
+          [80.2520, 12.8970]  // ECR Coastal Dune
+        ]
       }
     }
   ]

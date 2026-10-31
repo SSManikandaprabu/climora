@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { CityData } from '../../types/climate';
 import { GLOBAL_CITIES } from '../../data/citiesData';
-import { createEarthTextures } from './earthTextures';
+import { AtmosphericFlowEngine, FlowMode } from './AtmosphericFlowEngine';
 import { soundFx } from '../../utils/audioSynthesizer';
-import { RotateCw, ZoomIn, ZoomOut, Eye, Sparkles, Navigation, Layers, Compass, Satellite } from 'lucide-react';
+import { RotateCw, ZoomIn, ZoomOut, Eye, Sparkles, Navigation, Layers, Compass, Satellite, Wind, Waves, Activity } from 'lucide-react';
 
 interface EarthGlobeProps {
   selectedCity: CityData;
@@ -26,6 +26,9 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
   const [showNightLights, setShowNightLights] = useState(true);
   const [showSatellites, setShowSatellites] = useState(true);
   const [showArcs, setShowArcs] = useState(true);
+  const [showFlow, setShowFlow] = useState(true);
+  const [flowMode, setFlowMode] = useState<FlowMode>('monsoon');
+  const [flowSpeed, setFlowSpeed] = useState<number>(1.2);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hoveredCity, setHoveredCity] = useState<CityData | null>(null);
 
@@ -39,8 +42,9 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
   const markersGroupRef = useRef<THREE.Group | null>(null);
   const satellitesGroupRef = useRef<THREE.Group | null>(null);
   const arcsGroupRef = useRef<THREE.Group | null>(null);
+  const flowEngineRef = useRef<AtmosphericFlowEngine | null>(null);
   const animFrameId = useRef<number | null>(null);
-  const earthMatRef = useRef<THREE.ShaderMaterial | null>(null);
+  const earthMatRef = useRef<THREE.MeshStandardMaterial | null>(null);
 
   // Convert lat/lng to 3D sphere coordinate
   const latLngToVector3 = (lat: number, lng: number, radius: number): THREE.Vector3 => {
@@ -86,79 +90,54 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
     scene.add(globeGroup);
     globeGroupRef.current = globeGroup;
 
-    // 1. PROCEDURAL 4K MULTI-LAYER TEXTURES
-    const { dayTexture, nightTexture, specTexture, cloudTexture } = createEarthTextures();
+    // 1. SCENE LIGHTING (Atmospheric Sunlight & Ambient Glow)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
+    scene.add(ambientLight);
 
-    // 2. SUN VECTOR
-    const sunDirection = new THREE.Vector3(1.2, 0.4, 0.8).normalize();
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    sunLight.position.set(250, 80, 200);
+    scene.add(sunLight);
 
-    // 3. PHOTOREALISTIC SHADER
+    const rimLight = new THREE.DirectionalLight(0x22d3ee, 0.45);
+    rimLight.position.set(-200, -50, -180);
+    scene.add(rimLight);
+
+    // 2. GENUINE HIGH-RES NASA BLUE MARBLE TEXTURES
+    const textureLoader = new THREE.TextureLoader();
+    const dayTexture = textureLoader.load('/earth-blue-marble.jpg');
+    dayTexture.colorSpace = THREE.SRGBColorSpace;
+
+    const nightTexture = textureLoader.load('/earth-night.jpg');
+    nightTexture.colorSpace = THREE.SRGBColorSpace;
+
+    const specTexture = textureLoader.load('/earth-water.png');
+
+    const cloudTexture = textureLoader.load('/earth-clouds.png');
+
+    // 3. PHOTOREALISTIC EARTH MESH
     const earthRadius = 100;
     const earthGeometry = new THREE.SphereGeometry(earthRadius, 96, 96);
 
-    const earthVertexShader = `
-      varying vec2 vUv;
-      varying vec3 vNormal;
-      varying vec3 vPosition;
-      void main() {
-        vUv = uv;
-        vNormal = normalize(normalMatrix * normal);
-        vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `;
-
-    const earthFragmentShader = `
-      uniform sampler2D uDayTexture;
-      uniform sampler2D uNightTexture;
-      uniform sampler2D uSpecTexture;
-      uniform vec3 uSunDirection;
-      uniform float uNightLightsMix;
-      varying vec2 vUv;
-      varying vec3 vNormal;
-      varying vec3 vPosition;
-
-      void main() {
-        vec3 dayColor = texture2D(uDayTexture, vUv).rgb;
-        vec3 nightColor = texture2D(uNightTexture, vUv).rgb;
-        float specValue = texture2D(uSpecTexture, vUv).r;
-
-        float nDotL = dot(vNormal, uSunDirection);
-        float dayMix = smoothstep(-0.15, 0.25, nDotL);
-
-        vec3 viewDir = normalize(-vPosition);
-        vec3 reflectDir = reflect(-uSunDirection, vNormal);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0) * specValue * 1.8;
-        vec3 specularColor = vec3(0.3, 0.75, 1.0) * spec;
-
-        vec3 ambient = dayColor * 0.12;
-        vec3 finalColor = mix(nightColor * 1.6 * uNightLightsMix, dayColor + specularColor, dayMix) + ambient;
-        gl_FragColor = vec4(finalColor, 1.0);
-      }
-    `;
-
-    const earthMaterial = new THREE.ShaderMaterial({
-      vertexShader: earthVertexShader,
-      fragmentShader: earthFragmentShader,
-      uniforms: {
-        uDayTexture: { value: dayTexture },
-        uNightTexture: { value: nightTexture },
-        uSpecTexture: { value: specTexture },
-        uSunDirection: { value: sunDirection },
-        uNightLightsMix: { value: 1.0 },
-      },
+    const earthMaterial = new THREE.MeshStandardMaterial({
+      map: dayTexture,
+      roughnessMap: specTexture,
+      roughness: 0.55,
+      metalness: 0.1,
+      emissiveMap: nightTexture,
+      emissive: new THREE.Color(0xffe8a0),
+      emissiveIntensity: 0.65,
     });
     earthMatRef.current = earthMaterial;
 
     const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
     globeGroup.add(earthMesh);
 
-    // 4. VOLUMETRIC CLOUDS LAYER
-    const cloudsGeo = new THREE.SphereGeometry(earthRadius + 1.4, 64, 64);
+    // 4. VOLUMETRIC REALISTIC CLOUDS LAYER
+    const cloudsGeo = new THREE.SphereGeometry(earthRadius + 1.2, 64, 64);
     const cloudsMat = new THREE.MeshStandardMaterial({
       map: cloudTexture,
       transparent: true,
-      opacity: 0.52,
+      opacity: 0.38,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -166,7 +145,17 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
     globeGroup.add(cloudsMesh);
     cloudsMeshRef.current = cloudsMesh;
 
-    // 5. RAYLEIGH ATMOSPHERIC SCATTERING GLOW (Outer Halo)
+    // 5. ATMOSPHERIC & OCEANIC VECTOR FLOW PARTICLES & STREAMLINES ENGINE
+    const flowEngine = new AtmosphericFlowEngine({
+      radius: earthRadius + 1.6,
+      particleCount: 3800,
+      mode: 'monsoon',
+      speedScale: 1.2,
+    });
+    globeGroup.add(flowEngine.group);
+    flowEngineRef.current = flowEngine;
+
+    // 6. RAYLEIGH ATMOSPHERIC SCATTERING GLOW (Outer Halo)
     const atmosphereVertexShader = `
       varying vec3 vNormal;
       void main() {
@@ -359,18 +348,6 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
       markersGroup.add(marker);
     });
 
-    // 10. LIGHTING
-    const dirSunLight = new THREE.DirectionalLight(0xfff5e6, 2.4);
-    dirSunLight.position.set(250, 80, 160);
-    scene.add(dirSunLight);
-
-    const ambientLight = new THREE.AmbientLight(0x0a1426, 1.2);
-    scene.add(ambientLight);
-
-    const softFillLight = new THREE.DirectionalLight(0x1a365d, 0.6);
-    softFillLight.position.set(-200, -50, -100);
-    scene.add(softFillLight);
-
     // Initial orientation: Target Chennai
     const initialRot = -((selectedCity.lng + 180) * (Math.PI / 180)) + Math.PI / 2;
     globeGroup.rotation.y = initialRot;
@@ -513,6 +490,11 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
         pulse.mesh.position.copy(pt);
       });
 
+      // Animate atmospheric and oceanic flow field
+      if (flowEngineRef.current) {
+        flowEngineRef.current.update(0.016);
+      }
+
       starField.rotation.y = elapsedTime * 0.0002;
       renderer.render(scene, camera);
     };
@@ -538,6 +520,7 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
       container.removeEventListener('click', onClick);
       window.removeEventListener('resize', handleResize);
       renderer.dispose();
+      flowEngine.dispose();
       earthGeometry.dispose();
       earthMaterial.dispose();
       dayTexture.dispose();
@@ -546,6 +529,25 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
       cloudTexture.dispose();
     };
   }, []);
+
+  // Sync Flow Engine settings on state change
+  useEffect(() => {
+    if (flowEngineRef.current) {
+      flowEngineRef.current.setMode(flowMode);
+    }
+  }, [flowMode]);
+
+  useEffect(() => {
+    if (flowEngineRef.current) {
+      flowEngineRef.current.setSpeedScale(flowSpeed);
+    }
+  }, [flowSpeed]);
+
+  useEffect(() => {
+    if (flowEngineRef.current) {
+      flowEngineRef.current.setVisible(showFlow);
+    }
+  }, [showFlow]);
 
   const focusOnCity = (city: CityData) => {
     if (!globeGroupRef.current || !cameraRef.current) return;
@@ -759,7 +761,7 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
             const next = !showNightLights;
             setShowNightLights(next);
             if (earthMatRef.current) {
-              earthMatRef.current.uniforms.uNightLightsMix.value = next ? 1.0 : 0.0;
+              earthMatRef.current.emissiveIntensity = next ? 0.65 : 0.0;
             }
           }}
           title="Toggle Metropolitan Night Lights"
@@ -801,6 +803,101 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
         >
           <Layers className="w-4 h-4" />
         </button>
+      </div>
+
+      {/* Floating Interactive Atmospheric Vector Flow Control Dock */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 hidden md:flex items-center gap-2 glass-panel-elevated p-1.5 rounded-2xl border border-cyan-500/30 text-xs font-mono shadow-2xl backdrop-blur-2xl select-none">
+        {/* Flow Toggle Button */}
+        <button
+          onClick={() => {
+            soundFx.playClick();
+            setShowFlow(!showFlow);
+          }}
+          title="Toggle Atmospheric & Oceanic Flow Streamlines"
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
+            showFlow
+              ? 'bg-cyan-500/25 text-cyan-200 border border-cyan-400/60 shadow-[0_0_12px_rgba(34,211,238,0.25)] font-bold'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Wind className={`w-3.5 h-3.5 ${showFlow ? 'text-cyan-400 animate-spin' : 'text-slate-400'}`} style={{ animationDuration: '4s' }} />
+          <span>Vector Flow</span>
+          {showFlow && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />}
+        </button>
+
+        <div className="w-[1px] h-4 bg-white/10" />
+
+        {/* Flow Modes */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setFlowMode('monsoon');
+            }}
+            className={`px-2.5 py-1 rounded-lg text-[11px] transition-all flex items-center gap-1 ${
+              flowMode === 'monsoon'
+                ? 'bg-purple-500/25 text-purple-300 font-bold border border-purple-500/50'
+                : 'text-slate-400 hover:text-white'
+            }`}
+            title="Bay of Bengal Cyclonic Monsoon Spiral into Chennai"
+          >
+            <Activity className="w-3 h-3 text-purple-400" />
+            <span>Monsoon Vortex</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setFlowMode('wind');
+            }}
+            className={`px-2.5 py-1 rounded-lg text-[11px] transition-all flex items-center gap-1 ${
+              flowMode === 'wind'
+                ? 'bg-blue-500/25 text-blue-300 font-bold border border-blue-500/50'
+                : 'text-slate-400 hover:text-white'
+            }`}
+            title="Planetary Trade Winds & Jet Streams"
+          >
+            <Wind className="w-3 h-3 text-blue-400" />
+            <span>Jet Stream</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setFlowMode('ocean');
+            }}
+            className={`px-2.5 py-1 rounded-lg text-[11px] transition-all flex items-center gap-1 ${
+              flowMode === 'ocean'
+                ? 'bg-emerald-500/25 text-emerald-300 font-bold border border-emerald-500/50'
+                : 'text-slate-400 hover:text-white'
+            }`}
+            title="Oceanic Thermohaline Current Conveyor"
+          >
+            <Waves className="w-3 h-3 text-emerald-400" />
+            <span>Ocean Currents</span>
+          </button>
+        </div>
+
+        <div className="w-[1px] h-4 bg-white/10" />
+
+        {/* Speed Controls */}
+        <div className="flex items-center gap-1 text-[10px]">
+          <span className="text-slate-500 px-1">Speed:</span>
+          {[0.8, 1.2, 2.0].map((s) => (
+            <button
+              key={s}
+              onClick={() => {
+                soundFx.playClick();
+                setFlowSpeed(s);
+              }}
+              className={`px-2 py-0.5 rounded ${
+                flowSpeed === s ? 'bg-cyan-500/30 text-cyan-300 font-bold' : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              {s}x
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Cinematic Transition Zoom Flash Overlay */}
